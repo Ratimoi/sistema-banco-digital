@@ -1,12 +1,18 @@
 import { PrismaClient } from "../generated/prisma"
+import { PrismaMariaDb } from "@prisma/adapter-mariadb"
 
-const prisma = new PrismaClient()
+const adapter = new PrismaMariaDb({
+    host: "localhost",
+    port: 3306,
+    user: "root",
+    password: "Ratimoi_10",
+    database: "api_banco",
+    connectionLimit: 5
+})
+
+const prisma = new PrismaClient({ adapter })
 
 async function main() {
-
-    // =========================
-    // 👤 CLIENTES
-    // =========================
     const cliente1 = await prisma.cliente.create({
         data: {
             nome: "João Silva",
@@ -25,9 +31,6 @@ async function main() {
         }
     })
 
-    // =========================
-    // 🏦 CONTAS
-    // =========================
     const conta1 = await prisma.conta.create({
         data: {
             numeroConta: "1001",
@@ -46,9 +49,6 @@ async function main() {
         }
     })
 
-    // =========================
-    // 💳 CARTÕES
-    // =========================
     await prisma.cartao.create({
         data: {
             numero: "1111-2222-3333-4444",
@@ -59,9 +59,6 @@ async function main() {
         }
     })
 
-    // =========================
-    // 💰 EMPRÉSTIMO
-    // =========================
     await prisma.emprestimo.create({
         data: {
             valor: 5000,
@@ -72,9 +69,6 @@ async function main() {
         }
     })
 
-    // =========================
-    // 💸 TRANSAÇÕES
-    // =========================
     await prisma.transacao.create({
         data: {
             tipo: "DEPOSITO",
