@@ -1,166 +1,107 @@
-import { prisma } from "../lib/prisma";
-import { type Prisma } from "../generated/prisma/client"
+import { PrismaClient } from "../generated/prisma"
 
-const notebooks: Prisma.NotebookCreateInput[] = [
-    {
-        modelo: "Aspire Go 15",
-        marca: "Acer",
-        processador: "Intel",
-        preco: 2800,
-        quant: 3
-    },
-    {
-        modelo: "Nitro 5 AN515",
-        marca: "Acer",
-        processador: "Intel",
-        preco: 5200,
-        quant: 8
-    },
-    {
-        modelo: "Inspiron 15 3000",
-        marca: "Dell",
-        processador: "Intel",
-        preco: 3200,
-        quant: 5
-    },
-    {
-        modelo: "XPS 13",
-        marca: "Dell",
-        processador: "Intel",
-        preco: 7800,
-        quant: 2
-    },
-    {
-        modelo: "Pavilion 15",
-        marca: "HP",
-        processador: "AMD",
-        preco: 2900,
-        quant: 7
-    },
-    {
-        modelo: "Envy x360",
-        marca: "HP",
-        processador: "AMD",
-        preco: 4500,
-        quant: 4
-    },
-    {
-        modelo: "ThinkPad E14",
-        marca: "Lenovo",
-        processador: "Intel",
-        preco: 3800,
-        quant: 6
-    },
-    {
-        modelo: "Yoga 7i",
-        marca: "Lenovo",
-        processador: "Intel",
-        preco: 6200,
-        quant: 3
-    },
-    {
-        modelo: "VivoBook 14",
-        marca: "Asus",
-        processador: "AMD",
-        preco: 3100,
-        quant: 9
-    },
-    {
-        modelo: "ZenBook 14",
-        marca: "Asus",
-        processador: "Intel",
-        preco: 6900,
-        quant: 1
-    },
-    {
-        modelo: "Ideapad 3",
-        marca: "Lenovo",
-        processador: "AMD",
-        preco: 2700,
-        quant: 12
-    },
-    {
-        modelo: "Latitude 3420",
-        marca: "Dell",
-        processador: "Intel",
-        preco: 4100,
-        quant: 4
-    },
-    {
-        modelo: "Spectre x360",
-        marca: "HP",
-        processador: "Intel",
-        preco: 8500,
-        quant: 2
-    },
-    {
-        modelo: "ROG Strix G15",
-        marca: "Asus",
-        processador: "AMD",
-        preco: 5800,
-        quant: 5
-    },
-    {
-        modelo: "Swift 3",
-        marca: "Acer",
-        processador: "AMD",
-        preco: 3400,
-        quant: 6
-    },
-    {
-        modelo: "Legion 5",
-        marca: "Lenovo",
-        processador: "AMD",
-        preco: 6100,
-        quant: 3
-    },
-    {
-        modelo: "ProBook 450",
-        marca: "HP",
-        processador: "Intel",
-        preco: 3700,
-        quant: 7
-    },
-    {
-        modelo: "TUF Gaming A15",
-        marca: "Asus",
-        processador: "AMD",
-        preco: 4900,
-        quant: 4
-    },
-    {
-        modelo: "Vostro 15",
-        marca: "Dell",
-        processador: "Intel",
-        preco: 3000,
-        quant: 10
-    },
-    {
-        modelo: "Chromebook 314",
-        marca: "Acer",
-        processador: "Intel",
-        preco: 2200,
-        quant: 15
-    },
-    {
-        modelo: "Surface Laptop 4",
-        marca: "Microsoft",
-        processador: "AMD",
-        preco: 7200,
-        quant: 2
-    }
-]
+const prisma = new PrismaClient()
 
 async function main() {
-    try {
-        await prisma.notebook.createMany({ data: notebooks })
-        console.log(`${notebooks.length} Notebooks Cadastrados...`)
-    } catch (error) {
-        console.error("Erro nas Inclusões (Seeds):", error);
-        throw error;
-    } finally {
-        await prisma.$disconnect();
-    }
+
+    // =========================
+    // 👤 CLIENTES
+    // =========================
+    const cliente1 = await prisma.cliente.create({
+        data: {
+            nome: "João Silva",
+            cpf: "12345678900",
+            email: "joao@email.com",
+            senha: "123456"
+        }
+    })
+
+    const cliente2 = await prisma.cliente.create({
+        data: {
+            nome: "Maria Oliveira",
+            cpf: "98765432100",
+            email: "maria@email.com",
+            senha: "123456"
+        }
+    })
+
+    // =========================
+    // 🏦 CONTAS
+    // =========================
+    const conta1 = await prisma.conta.create({
+        data: {
+            numeroConta: "1001",
+            saldo: 1000,
+            tipo: "corrente",
+            clienteId: cliente1.id
+        }
+    })
+
+    const conta2 = await prisma.conta.create({
+        data: {
+            numeroConta: "1002",
+            saldo: 500,
+            tipo: "corrente",
+            clienteId: cliente2.id
+        }
+    })
+
+    // =========================
+    // 💳 CARTÕES
+    // =========================
+    await prisma.cartao.create({
+        data: {
+            numero: "1111-2222-3333-4444",
+            validade: "12/30",
+            cvv: "123",
+            tipo: "credito",
+            contaId: conta1.id
+        }
+    })
+
+    // =========================
+    // 💰 EMPRÉSTIMO
+    // =========================
+    await prisma.emprestimo.create({
+        data: {
+            valor: 5000,
+            taxaJuros: 2.5,
+            parcelas: 12,
+            status: "ativo",
+            clienteId: cliente1.id
+        }
+    })
+
+    // =========================
+    // 💸 TRANSAÇÕES
+    // =========================
+    await prisma.transacao.create({
+        data: {
+            tipo: "DEPOSITO",
+            valor: 200,
+            descricao: "Depósito inicial",
+            contaDestinoId: conta1.id
+        }
+    })
+
+    await prisma.transacao.create({
+        data: {
+            tipo: "TRANSFERENCIA",
+            valor: 100,
+            descricao: "Transferência teste",
+            contaOrigemId: conta1.id,
+            contaDestinoId: conta2.id
+        }
+    })
+
+    console.log("🌱 Seed executado com sucesso!")
 }
 
-await main()
+main()
+    .catch((e) => {
+        console.error(e)
+        process.exit(1)
+    })
+    .finally(async () => {
+        await prisma.$disconnect()
+    })
