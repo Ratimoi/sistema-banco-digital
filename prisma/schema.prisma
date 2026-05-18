@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Cliente {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  cpf        String   @unique
+  email      String   @unique
+  senha      String
+  createdAt  DateTime @default(now())
+
+  contas      Conta[]
+  emprestimos Emprestimo[]
+}
+
+model Conta {
+  id           Int      @id @default(autoincrement())
+  numeroConta  String   @unique
+  saldo        Float    @default(0)
+  tipo         String
+
+  clienteId    Int
+  cliente      Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  cartoes      Cartao[]
+
+  transacoesEnviadas   Transacao[] @relation("ContaOrigem")
+  transacoesRecebidas   Transacao[] @relation("ContaDestino")
+}
+
+model Emprestimo {
+  id          Int      @id @default(autoincrement())
+  valor       Float
+  taxaJuros   Float
+  parcelas    Int
+  status      String
+
+  clienteId   Int
+  cliente     Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+}
+
+model Cartao {
+  id        Int     @id @default(autoincrement())
+  numero    String  @unique
+  validade  String
+  cvv       String
+  tipo      String
+
+  contaId   Int
+  conta     Conta   @relation(fields: [contaId], references: [id], onDelete: Cascade)
+}
+
+model Transacao {
+  id              Int      @id @default(autoincrement())
+  tipo            String
+  valor           Float
+  descricao       String?
+  createdAt       DateTime @default(now())
+
+  contaOrigemId   Int?
+  contaDestinoId  Int?
+
+  contaOrigem  Conta? @relation("ContaOrigem", fields: [contaOrigemId], references: [id], onDelete: SetNull)
+  contaDestino Conta? @relation("ContaDestino", fields: [contaDestinoId], references: [id], onDelete: SetNull)
+}
