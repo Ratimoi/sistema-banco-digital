@@ -4,10 +4,12 @@
 node_modules/
 
 # =========================
-# Build / compilação
+# Build
 # =========================
 dist/
 build/
+.next/
+out/
 
 # =========================
 # Variáveis de ambiente
@@ -21,8 +23,6 @@ build/
 # Prisma
 # =========================
 prisma/migrations/
-
-# Se você NÃO quiser versionar o client gerado:
 generated/
 
 # =========================

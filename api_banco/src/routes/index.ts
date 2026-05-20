@@ -1,5 +1,4 @@
 import { Router } from "express"
-
 import clienteRoutes from "./clienteRoutes"
 import contaRoutes from "./contaRoutes"
 import transacaoRoutes from "./transacaoRoutes"
@@ -8,7 +7,6 @@ import cartaoRoutes from "./cartaoRoutes"
 
 const router = Router()
 
-// prefixos da API
 router.use("/clientes", clienteRoutes)
 router.use("/contas", contaRoutes)
 router.use("/transacoes", transacaoRoutes)
