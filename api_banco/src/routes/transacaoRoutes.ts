@@ -3,10 +3,11 @@ import { listarTransacoes, buscarTransacao, deposito, saque, transferencia } fro
 
 const router = Router()
 
-router.get("/", listarTransacoes)
-router.get("/:id", buscarTransacao)
+// Rotas nomeadas ANTES de /:id para evitar conflito
 router.post("/deposito", deposito)
 router.post("/saque", saque)
 router.post("/transferencia", transferencia)
+router.get("/", listarTransacoes)
+router.get("/:id", buscarTransacao)
 
 export default router

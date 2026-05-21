@@ -1,46 +1,21 @@
-# =========================
 # Dependências
-# =========================
 node_modules/
+*/node_modules/
 
-# =========================
-# Build
-# =========================
-dist/
-build/
-.next/
-out/
-
-# =========================
-# Variáveis de ambiente
-# =========================
+# Ambiente
 .env
-.env.local
-.env.development
-.env.production
+*/.env
 
-# =========================
-# Prisma
-# =========================
-prisma/migrations/
+# Build / gerado
 generated/
+*/generated/
+dist/
+*/dist/
 
-# =========================
 # Logs
-# =========================
+*.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
-# =========================
-# Sistema operacional
-# =========================
+# Sistema
 .DS_Store
 Thumbs.db
-
-# =========================
-# Editor
-# =========================
-.vscode/
-.idea/
