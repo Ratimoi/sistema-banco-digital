@@ -259,5 +259,8 @@ Para configurar, gere uma **App Password** no Google:
 
 ## 👨‍💻 Autor
 
-Desenvolvido como trabalho acadêmico — Curso Superior de Tecnologia em ADS
-Disciplina: Desenvolvimento de Serviços e APIs — Prof. Edécio Fernando Iepsen
+Desenvolvido por **Ramiro Quevedo Paz**  
+Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas (ADS)
+
+**Disciplina:** Desenvolvimento de Serviços e APIs  
+**Professor:** Edécio Fernando Iepsen
