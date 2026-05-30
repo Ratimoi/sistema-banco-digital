@@ -8,7 +8,7 @@ Sistema de gerenciamento bancário com API REST em Node.js/Express + interface w
 
 ```
 sistema_banco/
-├── api_banco/        → API REST (backend)
+├── backend/        → API REST
 └── frontend/         → Interface web (React)
 ```
 
@@ -61,7 +61,7 @@ Cliente (1) ──────── (N) Conta
 ### 1. Configurar o Backend
 
 ```bash
-cd api_banco
+cd backend
 npm install
 ```
 
