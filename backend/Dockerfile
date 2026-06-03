@@ -10,7 +10,7 @@ COPY prisma.config.ts ./
 COPY src ./src
 COPY lib ./lib
 
-ARG DATABASE_URL=mysql://user:pass@localhost:3306/dummy
+ARG DATABASE_URL=postgresql://user:pass@localhost:5432/postgres
 ENV DATABASE_URL=${DATABASE_URL}
 
 RUN npx prisma generate
