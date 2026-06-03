@@ -31,7 +31,7 @@ model Conta {
   cartoes      Cartao[]
 
   transacoesEnviadas   Transacao[] @relation("ContaOrigem")
-  transacoesRecebidas   Transacao[] @relation("ContaDestino")
+  transacoesRecebidas  Transacao[] @relation("ContaDestino")
 }
 
 model Emprestimo {
@@ -66,6 +66,6 @@ model Transacao {
   contaOrigemId   Int?
   contaDestinoId  Int?
 
-  contaOrigem  Conta? @relation("ContaOrigem", fields: [contaOrigemId], references: [id], onDelete: SetNull)
+  contaOrigem  Conta? @relation("ContaOrigem",  fields: [contaOrigemId],  references: [id], onDelete: SetNull)
   contaDestino Conta? @relation("ContaDestino", fields: [contaDestinoId], references: [id], onDelete: SetNull)
 }
