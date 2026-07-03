@@ -24,7 +24,13 @@ jobs:
       - run: npm ci --include=dev
       - run: npx prisma generate
         env:
-          DATABASE_URL: mysql://user:pass@localhost:3306/dummy
+          DATABASE_URL: postgresql://user:pass@localhost:5432/dummy
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run test
+        env:
+          DATABASE_URL: postgresql://user:pass@localhost:5432/dummy
+          JWT_SECRET: ci_dummy_secret_not_for_production
 
   ci-frontend:
     name: CI · Frontend

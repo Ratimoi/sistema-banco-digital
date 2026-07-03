@@ -1,52 +1,50 @@
 import nodemailer from "nodemailer"
-import { prisma } from "../../lib/prisma"
+import { prisma } from "../lib/prisma"
+import { env } from "../config/env"
+import { AppError } from "../utils/AppError"
 
 export const enviarEmailRelatorio = async (clienteId: number) => {
-
-    const cliente = await prisma.cliente.findUnique({
-        where: { id: clienteId },
+  const cliente = await prisma.cliente.findUnique({
+    where: { id: clienteId },
+    include: {
+      contas: {
         include: {
-            contas: {
-                include: {
-                    transacoesEnviadas: true,
-                    transacoesRecebidas: true
-                }
-            }
-        }
-    })
+          transacoesEnviadas: true,
+          transacoesRecebidas: true,
+        },
+      },
+    },
+  })
 
-    if (!cliente) {
-        throw new Error("Cliente não encontrado")
-    }
+  if (!cliente) {
+    throw new AppError("Cliente não encontrado", 404)
+  }
 
-    // Junta todas as transações
-    const transacoes = cliente.contas.flatMap(conta => [
-        ...conta.transacoesEnviadas,
-        ...conta.transacoesRecebidas
-    ])
+  const transacoes = cliente.contas.flatMap((conta) => [
+    ...conta.transacoesEnviadas,
+    ...conta.transacoesRecebidas,
+  ])
 
-    // Formata o conteúdo do e-mail
-    const relatorio = transacoes.length > 0
-        ? transacoes.map(t =>
-            `${t.tipo} | R$ ${t.valor} | ${t.createdAt.toLocaleString()}`
-        ).join("\n")
-        : "Nenhuma transação encontrada."
+  const relatorio =
+    transacoes.length > 0
+      ? transacoes
+          .map((t) => `${t.tipo} | R$ ${t.valor.toFixed(2)} | ${t.createdAt.toLocaleString()}`)
+          .join("\n")
+      : "Nenhuma transação encontrada."
 
-    // Configuração do transporte de e-mail
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    })
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: env.EMAIL_USER,
+      pass: env.EMAIL_PASS,
+    },
+  })
 
-    // Envio do e-mail
-    await transporter.sendMail({
-        from: "Banco API <no-reply@banco.com>",
-        to: cliente.email,
-        subject: "📄 Relatório de Transações Bancárias",
-        text: `
+  await transporter.sendMail({
+    from: "Banco API <no-reply@banco.com>",
+    to: cliente.email,
+    subject: "📄 Relatório de Transações Bancárias",
+    text: `
 Olá ${cliente.nome},
 
 Segue seu relatório de transações:
@@ -56,8 +54,8 @@ ${relatorio}
 --------------------------------
 
 Obrigado por usar nosso sistema bancário!
-        `
-    })
+    `,
+  })
 
-    return true
+  return true
 }

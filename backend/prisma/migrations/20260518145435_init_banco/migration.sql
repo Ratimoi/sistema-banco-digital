@@ -1,1 +1,0 @@
--- Migração esvaziada: foreign keys já aplicadas na migration anterior com CASCADE correto

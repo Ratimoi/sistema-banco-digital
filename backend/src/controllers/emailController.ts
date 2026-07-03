@@ -1,18 +1,8 @@
-import { enviarEmailRelatorio } from "../services/emailService";
+import { Request, Response } from "express"
+import { asyncHandler } from "../utils/asyncHandler"
+import { enviarEmailRelatorio } from "../services/emailService"
 
-export const enviarEmailCliente = async (req: any, res: any) => {
-    const { id } = req.params;
-
-    try {
-        await enviarEmailRelatorio(Number(id));
-
-        return res.json({
-            message: "E-mail enviado com sucesso!"
-        });
-
-    } catch (error: any) {
-        return res.status(400).json({
-            error: error.message
-        });
-    }
-};
+export const enviarEmailCliente = asyncHandler(async (req: Request, res: Response) => {
+  await enviarEmailRelatorio(Number(req.params.id))
+  return res.json({ message: "E-mail enviado com sucesso!" })
+})

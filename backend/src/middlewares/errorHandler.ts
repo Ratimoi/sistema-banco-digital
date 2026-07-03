@@ -1,0 +1,36 @@
+import { NextFunction, Request, Response } from "express"
+import { ZodError } from "zod"
+import { Prisma } from "../../generated/prisma"
+import { AppError } from "../utils/AppError"
+
+const PRISMA_ERROR_STATUS: Record<string, number> = {
+  P2002: 409, // unique constraint violation
+  P2025: 404, // record not found
+  P2003: 409, // foreign key constraint violation
+}
+
+const PRISMA_ERROR_MESSAGE: Record<string, string> = {
+  P2002: "Já existe um registro com esses dados",
+  P2025: "Registro não encontrado",
+  P2003: "Operação viola uma referência entre registros",
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ error: err.message })
+  }
+
+  if (err instanceof ZodError) {
+    return res.status(400).json({ error: "Dados inválidos", details: err.issues })
+  }
+
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    const status = PRISMA_ERROR_STATUS[err.code] ?? 400
+    const message = PRISMA_ERROR_MESSAGE[err.code] ?? "Erro ao processar a solicitação"
+    return res.status(status).json({ error: message })
+  }
+
+  console.error(err)
+  return res.status(500).json({ error: "Erro interno do servidor" })
+}
