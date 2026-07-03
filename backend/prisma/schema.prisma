@@ -7,6 +7,34 @@ datasource db {
   provider = "postgresql"
 }
 
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  nivel     Int      @default(1)
+  createdAt DateTime @default(now())
+
+  tentativasFalhas Int       @default(0)
+  bloqueadoAte     DateTime?
+  ultimoLogin      DateTime?
+
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  logs Log[]
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  acao      String
+  detalhe   String?
+  createdAt DateTime @default(now())
+
+  usuarioId Int?
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+}
+
 model Cliente {
   id         Int      @id @default(autoincrement())
   nome       String
@@ -22,7 +50,7 @@ model Cliente {
 model Conta {
   id           Int      @id @default(autoincrement())
   numeroConta  String   @unique
-  saldo        Float    @default(0)
+  saldo        Decimal  @default(0) @db.Decimal(15, 2)
   tipo         String
 
   clienteId    Int
@@ -36,8 +64,8 @@ model Conta {
 
 model Emprestimo {
   id          Int      @id @default(autoincrement())
-  valor       Float
-  taxaJuros   Float
+  valor       Decimal  @db.Decimal(15, 2)
+  taxaJuros   Decimal  @db.Decimal(5, 2)
   parcelas    Int
   status      String
 
@@ -59,7 +87,7 @@ model Cartao {
 model Transacao {
   id              Int      @id @default(autoincrement())
   tipo            String
-  valor           Float
+  valor           Decimal  @db.Decimal(15, 2)
   descricao       String?
   createdAt       DateTime @default(now())
 

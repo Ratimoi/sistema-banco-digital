@@ -63,10 +63,12 @@ A aplicação simula operações bancárias reais, permitindo:
         │ Prisma ORM
         ▼
 ┌───────────────┐
-│    MySQL      │
+│  PostgreSQL   │
 │ Banco Dados   │
 └───────────────┘
 ```
+
+Todas as rotas em `/api`, exceto `/api/auth/login`, exigem um token JWT (`Authorization: Bearer <token>`) obtido através do login de um usuário administrador.
 
 ---
 
@@ -78,7 +80,11 @@ A aplicação simula operações bancárias reais, permitindo:
 * TypeScript
 * Express 5
 * Prisma ORM
-* MySQL
+* PostgreSQL
+* Zod (validação de dados)
+* JWT + bcrypt (autenticação)
+* Helmet + CORS + express-rate-limit (segurança)
+* Vitest + Supertest (testes)
 * Nodemailer
 * Docker
 
@@ -110,13 +116,17 @@ sistema_banco/
 │   │   └── seed.ts
 │   │
 │   ├── src/
-│   │   ├── controllers/
+│   │   ├── config/       # validação de variáveis de ambiente (zod)
+│   │   ├── lib/          # cliente Prisma
+│   │   ├── schemas/      # validação de entrada (zod) por recurso
+│   │   ├── middlewares/  # auth (JWT), validate, errorHandler
+│   │   ├── services/     # regra de negócio + acesso ao Prisma
+│   │   ├── controllers/  # finos: parseiam a requisição e chamam o service
 │   │   ├── routes/
-│   │   ├── services/
-│   │   ├── repositories/
-│   │   ├── middlewares/
+│   │   ├── utils/
 │   │   └── server.ts
 │   │
+│   ├── tests/
 │   ├── Dockerfile
 │   └── package.json
 │
@@ -151,20 +161,28 @@ Cliente (1) ──────── (N) Conta
 
 ## Entidades
 
+### Usuario (administrador do painel)
+
+* id
+* nome
+* email
+* senha (hash bcrypt, nunca devolvida pela API)
+* createdAt
+
 ### Cliente
 
 * id
 * nome
 * cpf
 * email
-* senha
+* senha (hash bcrypt, nunca devolvida pela API)
 * createdAt
 
 ### Conta
 
 * id
 * numeroConta
-* saldo
+* saldo (Decimal)
 * tipo
 * clienteId
 
@@ -173,15 +191,15 @@ Cliente (1) ──────── (N) Conta
 * id
 * numero
 * validade
-* cvv
+* cvv (nunca devolvido pela API)
 * tipo
 * contaId
 
 ### Empréstimo
 
 * id
-* valor
-* taxaJuros
+* valor (Decimal)
+* taxaJuros (Decimal)
 * parcelas
 * status
 * clienteId
@@ -190,7 +208,7 @@ Cliente (1) ──────── (N) Conta
 
 * id
 * tipo
-* valor
+* valor (Decimal)
 * descricao
 * contaOrigemId
 * contaDestinoId
@@ -202,10 +220,10 @@ Cliente (1) ──────── (N) Conta
 
 ## Pré-requisitos
 
-* Node.js 18+
+* Node.js 20+
 * Docker
 * Docker Compose
-* MySQL 8+
+* PostgreSQL 16+ (local via Docker ou um provedor como Supabase)
 
 ---
 
@@ -331,16 +349,13 @@ cd backend
 npm install
 ```
 
-Criar arquivo `.env`:
+Criar arquivo `.env` (veja `backend/.env.example`):
 
 ```env
-DATABASE_URL="mysql://root:senha@localhost:3306/api_banco"
+DATABASE_URL="postgresql://postgres:senha@localhost:5432/api_banco"
 
-DATABASE_HOST=localhost
-DATABASE_PORT=3306
-DATABASE_USER=root
-DATABASE_PASSWORD=senha
-DATABASE_NAME=api_banco
+JWT_SECRET=troque_por_um_segredo_aleatorio_longo
+JWT_EXPIRES_IN=8h
 
 EMAIL_USER=seu_email@gmail.com
 EMAIL_PASS=sua_app_password
@@ -358,7 +373,7 @@ Executar migrations:
 npx prisma migrate dev
 ```
 
-Popular banco:
+Popular banco (cria também o usuário administrador `admin@banco.com` / `admin123` — troque a senha em produção):
 
 ```bash
 npx prisma db seed
@@ -368,6 +383,14 @@ Executar servidor:
 
 ```bash
 npm run dev
+```
+
+Rodar lint, formatação e testes:
+
+```bash
+npm run lint
+npm run format
+npm run test
 ```
 
 Backend disponível em:
@@ -396,6 +419,60 @@ http://localhost:5173
 ---
 
 # 📌 Endpoints da API
+
+Todos os endpoints abaixo, exceto os de `/api/auth`, exigem o header
+`Authorization: Bearer <token>` obtido no login.
+
+## Autenticação
+
+| Método | Endpoint                  |
+| ------ | ------------------------- |
+| POST   | /api/auth/login           |
+| POST   | /api/auth/esqueci-senha   |
+| POST   | /api/auth/redefinir-senha |
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@banco.com",
+    "senha": "admin123"
+}
+```
+
+Resposta inclui uma mensagem de boas-vindas com a data do último acesso (ou aviso de primeiro
+acesso), além do token e do nível do usuário. Após 3 tentativas de senha inválida, o usuário fica
+bloqueado por 15 minutos (`423 Locked`).
+
+```http
+POST /api/auth/esqueci-senha
+Content-Type: application/json
+
+{ "email": "admin@banco.com" }
+```
+
+Envia um código de 6 dígitos por e-mail, válido por 15 minutos. A resposta é sempre genérica
+(não revela se o e-mail existe).
+
+```http
+POST /api/auth/redefinir-senha
+Content-Type: application/json
+
+{ "email": "admin@banco.com", "codigo": "123456", "novaSenha": "SenhaForte123!" }
+```
+
+## Usuários (administradores do painel)
+
+| Método | Endpoint      |
+| ------ | ------------- |
+| GET    | /api/usuarios |
+| POST   | /api/usuarios |
+
+A senha deve ter no mínimo 8 caracteres, com letra minúscula, maiúscula, número e símbolo. Não é
+permitido cadastrar dois usuários com o mesmo e-mail. Excluir clientes ou contas exige um usuário
+de **nível 3** (`403 Forbidden` caso contrário); veja `ADMIN_NIVEL` em
+[backend/prisma/createAdmin.ts](backend/prisma/createAdmin.ts).
 
 ## Clientes
 
@@ -469,7 +546,8 @@ http://localhost:5173
 * Transferências entre contas
 * Histórico de transações
 * Relatórios por e-mail
-* Persistência em banco de dados MySQL
+* Autenticação de administrador via JWT
+* Persistência em banco de dados PostgreSQL
 * API RESTful
 * Interface Web Responsiva
 
@@ -482,17 +560,30 @@ O projeto possui pipeline automatizada utilizando GitHub Actions.
 As verificações incluem:
 
 * Instalação de dependências
-* Build do frontend
-* Build do backend
-* Verificação de tipos TypeScript
-* Execução de testes (quando configurados)
+* Lint (ESLint) do backend
+* Build do frontend e do backend (com verificação de tipos TypeScript)
+* Execução dos testes automatizados (Vitest) do backend
 
 ---
 
 # 🔒 Segurança
 
+* Autenticação via JWT em todas as rotas administrativas (`/api/*`, exceto `/api/auth`)
+* Senhas de clientes e do usuário administrador com hash bcrypt (nunca gravadas ou devolvidas em texto puro)
+* Validação de senha forte (mínimo 8 caracteres, minúscula, maiúscula, número e símbolo) na
+  criação de usuários administradores
+* Bloqueio de conta por 15 minutos após 3 tentativas de login inválidas
+* Registro de data/hora do último login, exibida na resposta do login
+* Níveis de acesso por usuário (`nivel` 1-3): exclusão de clientes/contas exige nível 3
+* Recuperação de senha por e-mail com código temporário de 6 dígitos (expira em 15 minutos)
+* Tabela de `Log` registrando login (sucesso/falha/bloqueio), criação de usuário, recuperação e
+  redefinição de senha e exclusões de clientes/contas
+* CVV de cartão nunca é devolvido pela API
+* Validação de toda entrada da API com Zod
+* Rate limiting no login e nas operações financeiras (depósito, saque, transferência)
+* Headers de segurança via Helmet
 * Arquivos `.env` protegidos via `.gitignore`
-* Variáveis sensíveis armazenadas em ambiente
+* Variáveis de ambiente validadas na inicialização (falha rápido se algo estiver faltando)
 * ORM Prisma para evitar SQL Injection
 * Separação entre frontend e backend
 * Controle de relacionamentos por chaves estrangeiras

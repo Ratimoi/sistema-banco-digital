@@ -1,84 +1,36 @@
 import { Request, Response } from "express"
-import { prisma } from "../../lib/prisma"
+import { asyncHandler } from "../utils/asyncHandler"
+import * as contaService from "../services/contaService"
+import { registrarLog } from "../services/logService"
 
-export const criarConta = async (req: Request, res: Response) => {
-    try {
-        const conta = await prisma.conta.create({
-            data: req.body
-        })
-        return res.status(201).json(conta)
-    } catch (error) {
-        return res.status(400).json({ error: "Erro ao criar conta" })
-    }
-}
+export const criarConta = asyncHandler(async (req: Request, res: Response) => {
+  const conta = await contaService.criar(req.body)
+  return res.status(201).json(conta)
+})
 
-export const listarContas = async (req: Request, res: Response) => {
-    try {
-        const contas = await prisma.conta.findMany({
-            include: { cliente: true }
-        })
-        return res.json(contas)
-    } catch (error) {
-        return res.status(500).json({ error: "Erro ao listar contas" })
-    }
-}
+export const listarContas = asyncHandler(async (req: Request, res: Response) => {
+  const contas = await contaService.listar()
+  return res.json(contas)
+})
 
-export const buscarConta = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const conta = await prisma.conta.findUnique({
-            where: { id: Number(id) },
-            include: {
-                cliente: true,
-                cartoes: true,
-                transacoesEnviadas: true,
-                transacoesRecebidas: true
-            }
-        })
-        if (!conta) return res.status(404).json({ error: "Conta não encontrada" })
-        return res.json(conta)
-    } catch (error) {
-        return res.status(500).json({ error: "Erro ao buscar conta" })
-    }
-}
+export const buscarConta = asyncHandler(async (req: Request, res: Response) => {
+  const conta = await contaService.buscarPorId(Number(req.params.id))
+  return res.json(conta)
+})
 
-export const contasPorCliente = async (req: Request, res: Response) => {
-    try {
-        const { clienteId } = req.params
-        const contas = await prisma.conta.findMany({
-            where: { clienteId: Number(clienteId) },
-            include: {
-                transacoesEnviadas: true,
-                transacoesRecebidas: true
-            }
-        })
-        return res.json(contas)
-    } catch (error) {
-        return res.status(500).json({ error: "Erro ao listar contas do cliente" })
-    }
-}
+export const contasPorCliente = asyncHandler(async (req: Request, res: Response) => {
+  const contas = await contaService.listarPorCliente(Number(req.params.clienteId))
+  return res.json(contas)
+})
 
-export const atualizarConta = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const conta = await prisma.conta.update({
-            where: { id: Number(id) },
-            data: req.body
-        })
-        return res.json(conta)
-    } catch (error) {
-        return res.status(400).json({ error: "Erro ao atualizar conta" })
-    }
-}
+export const atualizarConta = asyncHandler(async (req: Request, res: Response) => {
+  const conta = await contaService.atualizar(Number(req.params.id), req.body)
+  return res.json(conta)
+})
 
-export const deletarConta = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        await prisma.conta.delete({
-            where: { id: Number(id) }
-        })
-        return res.json({ message: "Conta deletada com sucesso" })
-    } catch (error) {
-        return res.status(400).json({ error: "Erro ao deletar conta" })
-    }
-}
+export const deletarConta = asyncHandler(async (req: Request, res: Response) => {
+  const id = Number(req.params.id)
+  await contaService.deletar(id)
+  await registrarLog(req.usuarioId ?? null, "CONTA_EXCLUIDA", `Conta #${id} excluída`)
+  return res.json({ message: "Conta deletada com sucesso" })
+})
