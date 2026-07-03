@@ -8,7 +8,6 @@ RUN npm ci --include=dev
 COPY prisma ./prisma
 COPY prisma.config.ts ./
 COPY src ./src
-COPY lib ./lib
 
 ARG DATABASE_URL=postgresql://user:pass@localhost:5432/postgres
 ENV DATABASE_URL=${DATABASE_URL}

@@ -1,63 +1,28 @@
 import { Request, Response } from "express"
-import { prisma } from "../../lib/prisma"
+import { asyncHandler } from "../utils/asyncHandler"
+import * as cartaoService from "../services/cartaoService"
 
-export const criarCartao = async (req: Request, res: Response) => {
-    try {
-        const cartao = await prisma.cartao.create({
-            data: req.body
-        })
-        return res.status(201).json(cartao)
-    } catch (error) {
-        return res.status(400).json({ error: "Erro ao criar cartão" })
-    }
-}
+export const criarCartao = asyncHandler(async (req: Request, res: Response) => {
+  const cartao = await cartaoService.criar(req.body)
+  return res.status(201).json(cartao)
+})
 
-export const listarCartoes = async (req: Request, res: Response) => {
-    try {
-        const cartoes = await prisma.cartao.findMany({
-            include: { conta: true }
-        })
-        return res.json(cartoes)
-    } catch (error) {
-        return res.status(500).json({ error: "Erro ao listar cartões" })
-    }
-}
+export const listarCartoes = asyncHandler(async (req: Request, res: Response) => {
+  const cartoes = await cartaoService.listar()
+  return res.json(cartoes)
+})
 
-export const buscarCartao = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const cartao = await prisma.cartao.findUnique({
-            where: { id: Number(id) },
-            include: { conta: true }
-        })
-        if (!cartao) return res.status(404).json({ error: "Cartão não encontrado" })
-        return res.json(cartao)
-    } catch (error) {
-        return res.status(500).json({ error: "Erro ao buscar cartão" })
-    }
-}
+export const buscarCartao = asyncHandler(async (req: Request, res: Response) => {
+  const cartao = await cartaoService.buscarPorId(Number(req.params.id))
+  return res.json(cartao)
+})
 
-export const atualizarCartao = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        const cartao = await prisma.cartao.update({
-            where: { id: Number(id) },
-            data: req.body
-        })
-        return res.json(cartao)
-    } catch (error) {
-        return res.status(400).json({ error: "Erro ao atualizar cartão" })
-    }
-}
+export const atualizarCartao = asyncHandler(async (req: Request, res: Response) => {
+  const cartao = await cartaoService.atualizar(Number(req.params.id), req.body)
+  return res.json(cartao)
+})
 
-export const deletarCartao = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params
-        await prisma.cartao.delete({
-            where: { id: Number(id) }
-        })
-        return res.json({ message: "Cartão deletado com sucesso" })
-    } catch (error) {
-        return res.status(400).json({ error: "Erro ao deletar cartão" })
-    }
-}
+export const deletarCartao = asyncHandler(async (req: Request, res: Response) => {
+  await cartaoService.deletar(Number(req.params.id))
+  return res.json({ message: "Cartão deletado com sucesso" })
+})
