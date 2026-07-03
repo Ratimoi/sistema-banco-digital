@@ -12,7 +12,27 @@ model Usuario {
   nome      String
   email     String   @unique
   senha     String
+  nivel     Int      @default(1)
   createdAt DateTime @default(now())
+
+  tentativasFalhas Int       @default(0)
+  bloqueadoAte     DateTime?
+  ultimoLogin      DateTime?
+
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  logs Log[]
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  acao      String
+  detalhe   String?
+  createdAt DateTime @default(now())
+
+  usuarioId Int?
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
 }
 
 model Cliente {

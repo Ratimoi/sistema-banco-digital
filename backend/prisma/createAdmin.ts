@@ -1,18 +1,22 @@
 import { prisma } from "../src/lib/prisma"
 import { hashPassword } from "../src/services/authService"
+import { senhaForteSchema } from "../src/schemas/usuarioSchema"
 
 async function main() {
   const nome = process.env.ADMIN_NOME ?? "Administrador"
   const email = process.env.ADMIN_EMAIL
   const senha = process.env.ADMIN_SENHA
+  const nivel = Number(process.env.ADMIN_NIVEL ?? 3)
 
   if (!email || !senha) {
     console.error("Defina ADMIN_EMAIL e ADMIN_SENHA antes de rodar este script.")
     process.exit(1)
   }
 
-  if (senha.length < 6) {
-    console.error("ADMIN_SENHA deve ter pelo menos 6 caracteres.")
+  const senhaValida = senhaForteSchema.safeParse(senha)
+  if (!senhaValida.success) {
+    console.error("ADMIN_SENHA inválida:")
+    senhaValida.error.issues.forEach((issue) => console.error(`- ${issue.message}`))
     process.exit(1)
   }
 
@@ -23,11 +27,11 @@ async function main() {
   }
 
   const usuario = await prisma.usuario.create({
-    data: { nome, email, senha: await hashPassword(senha) },
-    select: { id: true, nome: true, email: true, createdAt: true },
+    data: { nome, email, senha: await hashPassword(senha), nivel },
+    select: { id: true, nome: true, email: true, nivel: true, createdAt: true },
   })
 
-  console.log(`Usuário administrador criado: ${usuario.email} (id ${usuario.id})`)
+  console.log(`Usuário administrador criado: ${usuario.email} (id ${usuario.id}, nível ${usuario.nivel})`)
 }
 
 main()

@@ -420,14 +420,16 @@ http://localhost:5173
 
 # 📌 Endpoints da API
 
-Todos os endpoints abaixo, exceto `POST /api/auth/login`, exigem o header
+Todos os endpoints abaixo, exceto os de `/api/auth`, exigem o header
 `Authorization: Bearer <token>` obtido no login.
 
 ## Autenticação
 
-| Método | Endpoint         |
-| ------ | ---------------- |
-| POST   | /api/auth/login  |
+| Método | Endpoint                  |
+| ------ | ------------------------- |
+| POST   | /api/auth/login           |
+| POST   | /api/auth/esqueci-senha   |
+| POST   | /api/auth/redefinir-senha |
 
 ```http
 POST /api/auth/login
@@ -438,6 +440,39 @@ Content-Type: application/json
     "senha": "admin123"
 }
 ```
+
+Resposta inclui uma mensagem de boas-vindas com a data do último acesso (ou aviso de primeiro
+acesso), além do token e do nível do usuário. Após 3 tentativas de senha inválida, o usuário fica
+bloqueado por 15 minutos (`423 Locked`).
+
+```http
+POST /api/auth/esqueci-senha
+Content-Type: application/json
+
+{ "email": "admin@banco.com" }
+```
+
+Envia um código de 6 dígitos por e-mail, válido por 15 minutos. A resposta é sempre genérica
+(não revela se o e-mail existe).
+
+```http
+POST /api/auth/redefinir-senha
+Content-Type: application/json
+
+{ "email": "admin@banco.com", "codigo": "123456", "novaSenha": "SenhaForte123!" }
+```
+
+## Usuários (administradores do painel)
+
+| Método | Endpoint      |
+| ------ | ------------- |
+| GET    | /api/usuarios |
+| POST   | /api/usuarios |
+
+A senha deve ter no mínimo 8 caracteres, com letra minúscula, maiúscula, número e símbolo. Não é
+permitido cadastrar dois usuários com o mesmo e-mail. Excluir clientes ou contas exige um usuário
+de **nível 3** (`403 Forbidden` caso contrário); veja `ADMIN_NIVEL` em
+[backend/prisma/createAdmin.ts](backend/prisma/createAdmin.ts).
 
 ## Clientes
 
@@ -533,8 +568,16 @@ As verificações incluem:
 
 # 🔒 Segurança
 
-* Autenticação via JWT em todas as rotas administrativas (`/api/*`, exceto `/api/auth/login`)
+* Autenticação via JWT em todas as rotas administrativas (`/api/*`, exceto `/api/auth`)
 * Senhas de clientes e do usuário administrador com hash bcrypt (nunca gravadas ou devolvidas em texto puro)
+* Validação de senha forte (mínimo 8 caracteres, minúscula, maiúscula, número e símbolo) na
+  criação de usuários administradores
+* Bloqueio de conta por 15 minutos após 3 tentativas de login inválidas
+* Registro de data/hora do último login, exibida na resposta do login
+* Níveis de acesso por usuário (`nivel` 1-3): exclusão de clientes/contas exige nível 3
+* Recuperação de senha por e-mail com código temporário de 6 dígitos (expira em 15 minutos)
+* Tabela de `Log` registrando login (sucesso/falha/bloqueio), criação de usuário, recuperação e
+  redefinição de senha e exclusões de clientes/contas
 * CVV de cartão nunca é devolvido pela API
 * Validação de toda entrada da API com Zod
 * Rate limiting no login e nas operações financeiras (depósito, saque, transferência)
