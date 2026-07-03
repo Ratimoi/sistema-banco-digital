@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { asyncHandler } from "../utils/asyncHandler"
 import * as contaService from "../services/contaService"
+import { registrarLog } from "../services/logService"
 
 export const criarConta = asyncHandler(async (req: Request, res: Response) => {
   const conta = await contaService.criar(req.body)
@@ -28,6 +29,8 @@ export const atualizarConta = asyncHandler(async (req: Request, res: Response) =
 })
 
 export const deletarConta = asyncHandler(async (req: Request, res: Response) => {
-  await contaService.deletar(Number(req.params.id))
+  const id = Number(req.params.id)
+  await contaService.deletar(id)
+  await registrarLog(req.usuarioId ?? null, "CONTA_EXCLUIDA", `Conta #${id} excluída`)
   return res.json({ message: "Conta deletada com sucesso" })
 })

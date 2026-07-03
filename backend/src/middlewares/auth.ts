@@ -7,6 +7,7 @@ declare global {
   namespace Express {
     interface Request {
       usuarioId?: number
+      usuarioNivel?: number
     }
   }
 }
@@ -21,8 +22,9 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   const token = header.slice("Bearer ".length)
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET)
-    req.usuarioId = Number((payload as jwt.JwtPayload).sub)
+    const payload = jwt.verify(token, env.JWT_SECRET) as jwt.JwtPayload & { nivel?: number }
+    req.usuarioId = Number(payload.sub)
+    req.usuarioNivel = payload.nivel ?? 1
     next()
   } catch {
     return res.status(401).json({ error: "Token inválido ou expirado" })

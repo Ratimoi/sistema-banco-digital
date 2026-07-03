@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { asyncHandler } from "../utils/asyncHandler"
 import { AppError } from "../utils/AppError"
 import * as clienteService from "../services/clienteService"
+import { registrarLog } from "../services/logService"
 
 export const criarCliente = asyncHandler(async (req: Request, res: Response) => {
   const cliente = await clienteService.criar(req.body)
@@ -25,6 +26,8 @@ export const atualizarCliente = asyncHandler(async (req: Request, res: Response)
 })
 
 export const deletarCliente = asyncHandler(async (req: Request, res: Response) => {
-  await clienteService.deletar(Number(req.params.id))
+  const id = Number(req.params.id)
+  await clienteService.deletar(id)
+  await registrarLog(req.usuarioId ?? null, "CLIENTE_EXCLUIDO", `Cliente #${id} excluído`)
   return res.json({ message: "Cliente deletado com sucesso" })
 })
