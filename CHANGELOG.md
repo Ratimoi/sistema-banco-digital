@@ -76,10 +76,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   em coluna de chave estrangeira.
 
 ### Fixed
-- Envio de e-mail (recuperação de senha e relatório de transações) falhava intermitentemente em
-  produção com `ENETUNREACH`: o Render não tem rota de saída IPv6 para o SMTP do Gmail, mas o
-  nodemailer sorteia aleatoriamente entre os endereços IPv4 e IPv6 resolvidos. Agora a conexão é
-  aberta explicitamente via IPv4 antes de ser entregue ao nodemailer.
+- Envio de e-mail (recuperação de senha e relatório de transações) nunca funcionava em produção:
+  o Render bloqueia conexões de saída na porta 465 (SMTP), tanto por IPv4 quanto IPv6 — o
+  sintoma inicial parecia ser só IPv6, mas testar em produção confirmou que a porta inteira está
+  bloqueada. Substitui o envio via SMTP/nodemailer por [Resend](https://resend.com), que entrega
+  por HTTPS (porta 443, a mesma já usada pelo resto da API). Remove a dependência `nodemailer`
+  (que também tinha uma vulnerabilidade de severidade alta em aberto).
 
 ## [1.1.0] - 2026-07-04
 

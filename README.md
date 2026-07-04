@@ -89,7 +89,7 @@ apenas um token válido, de qualquer nível.
 * JWT + bcrypt (autenticação)
 * Helmet + CORS + express-rate-limit (segurança)
 * Vitest + Supertest (testes)
-* Nodemailer
+* Resend (e-mail transacional)
 * Docker
 
 ## Frontend
@@ -365,8 +365,7 @@ DATABASE_URL="postgresql://postgres:senha@localhost:5432/api_banco"
 JWT_SECRET=troque_por_um_segredo_aleatorio_longo
 JWT_EXPIRES_IN=8h
 
-EMAIL_USER=seu_email@gmail.com
-EMAIL_PASS=sua_app_password
+RESEND_API_KEY=re_sua_chave
 ```
 
 Gerar Prisma Client:
