@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate } from "re
 import { ToastContainer } from "./components/ui"
 import { isAuthenticated, clearToken } from "./services/authService"
 import { isClienteAuthenticated, clearClienteToken } from "./services/clienteAuthService"
+import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import DashboardPage from "./pages/DashboardPage"
 import ClientesPage from "./pages/ClientesPage"
@@ -76,12 +77,12 @@ function PortalLayout() {
 }
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: "◈" },
-  { to: "/clientes", label: "Clientes", icon: "◉" },
-  { to: "/contas", label: "Contas", icon: "▣" },
-  { to: "/cartoes", label: "Cartões", icon: "▤" },
-  { to: "/emprestimos", label: "Empréstimos", icon: "◆" },
-  { to: "/transacoes", label: "Transações", icon: "⇄" },
+  { to: "/admin", label: "Dashboard", icon: "◈" },
+  { to: "/admin/clientes", label: "Clientes", icon: "◉" },
+  { to: "/admin/contas", label: "Contas", icon: "▣" },
+  { to: "/admin/cartoes", label: "Cartões", icon: "▤" },
+  { to: "/admin/emprestimos", label: "Empréstimos", icon: "◆" },
+  { to: "/admin/transacoes", label: "Transações", icon: "⇄" },
 ]
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -108,7 +109,7 @@ function AdminLayout() {
           <NavLink
             key={item.to}
             to={item.to}
-            end={item.to === "/"}
+            end={item.to === "/admin"}
             className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
           >
             <span className="nav-icon">{item.icon}</span>
@@ -143,6 +144,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/portal/login" element={<PortalLoginPage />} />
         <Route path="/portal/cadastro" element={<PortalCadastroPage />} />
@@ -157,7 +159,7 @@ export default function App() {
           }
         />
         <Route
-          path="/*"
+          path="/admin/*"
           element={
             <RequireAuth>
               <AdminLayout />
