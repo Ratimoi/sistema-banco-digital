@@ -1,27 +1,5 @@
-/// <reference types="vite/client" />
-import axios from "axios"
+import { createApiClient } from "./httpClient"
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api",
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("banco_token")
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401 && window.location.pathname !== "/login") {
-      localStorage.removeItem("banco_token")
-      window.location.href = "/login"
-    }
-    return Promise.reject(error)
-  },
-)
+const api = createApiClient("/api")
 
 export default api

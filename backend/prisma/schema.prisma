@@ -15,6 +15,8 @@ model Log {
 
   clienteId Int?
   cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+
+  @@index([clienteId])
 }
 
 model Cliente {
@@ -62,6 +64,8 @@ model Emprestimo {
 
   clienteId   Int
   cliente     Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@index([clienteId])
 }
 
 model Cartao {
@@ -74,6 +78,8 @@ model Cartao {
 
   contaId   Int
   conta     Conta   @relation(fields: [contaId], references: [id], onDelete: Cascade)
+
+  @@index([contaId])
 }
 
 model Post {
@@ -83,6 +89,8 @@ model Post {
 
   clienteId Int
   cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@index([clienteId])
 }
 
 model Transacao {
@@ -97,4 +105,7 @@ model Transacao {
 
   contaOrigem  Conta? @relation("ContaOrigem",  fields: [contaOrigemId],  references: [id], onDelete: SetNull)
   contaDestino Conta? @relation("ContaDestino", fields: [contaDestinoId], references: [id], onDelete: SetNull)
+
+  @@index([contaOrigemId])
+  @@index([contaDestinoId])
 }
