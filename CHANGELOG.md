@@ -22,8 +22,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-04
+
 ### Added
 - ESLint e Prettier configurados no frontend.
+- Rota `GET /api/logs` para listagem dos logs registrados.
 
 ## [1.0.0] - 2026-07-04
 
