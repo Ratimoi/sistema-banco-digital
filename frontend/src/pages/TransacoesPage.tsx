@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { getTransacoes, deposito, saque, transferencia } from "../services/transacaoService"
 import { getContas } from "../services/contaService"
-import { toast } from "../components/ui"
+import { Pagination, toast } from "../components/ui"
+import { Conta, Transacao } from "../types"
 
 export default function TransacoesPage() {
   const [tab, setTab] = useState<"historico" | "deposito" | "saque" | "transferencia">("historico")
-  const [transacoes, setTransacoes] = useState<any[]>([])
-  const [contas, setContas] = useState<any[]>([])
+  const [transacoes, setTransacoes] = useState<Transacao[]>([])
+  const [total, setTotal] = useState(0)
+  const [pagina, setPagina] = useState(1)
+  const [totalPaginas, setTotalPaginas] = useState(1)
+  const [contas, setContas] = useState<Conta[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
@@ -14,21 +18,27 @@ export default function TransacoesPage() {
   const [fSaque, setFSaque] = useState({ contaId: "", valor: "" })
   const [fTransferencia, setFTransferencia] = useState({ origemId: "", destinoId: "", valor: "" })
 
-  const load = async () => {
+  const loadTransacoes = useCallback(async (page: number) => {
+    setLoading(true)
     try {
-      const [t, c] = await Promise.all([getTransacoes(), getContas()])
-      setTransacoes(t.data)
-      setContas(c.data)
+      const res = await getTransacoes(page)
+      setTransacoes(res.data.dados)
+      setTotal(res.data.total)
+      setPagina(res.data.pagina)
+      setTotalPaginas(res.data.totalPaginas)
     } catch {
       toast.error("Erro ao carregar dados")
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
-    load()
-  }, [])
+    loadTransacoes(1)
+    getContas(1, 100)
+      .then((res) => setContas(res.data.dados))
+      .catch(() => toast.error("Erro ao carregar contas"))
+  }, [loadTransacoes])
 
   const handleDeposito = async () => {
     setSaving(true)
@@ -36,10 +46,11 @@ export default function TransacoesPage() {
       await deposito({ contaId: Number(fDeposito.contaId), valor: Number(fDeposito.valor) })
       toast.success("Depósito realizado!")
       setFDeposito({ contaId: "", valor: "" })
-      load()
+      loadTransacoes(1)
       setTab("historico")
-    } catch (e: any) {
-      toast.error(e.response?.data?.error || "Erro ao realizar depósito")
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "Erro ao realizar depósito")
     } finally {
       setSaving(false)
     }
@@ -51,10 +62,11 @@ export default function TransacoesPage() {
       await saque({ contaId: Number(fSaque.contaId), valor: Number(fSaque.valor) })
       toast.success("Saque realizado!")
       setFSaque({ contaId: "", valor: "" })
-      load()
+      loadTransacoes(1)
       setTab("historico")
-    } catch (e: any) {
-      toast.error(e.response?.data?.error || "Erro ao realizar saque")
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "Erro ao realizar saque")
     } finally {
       setSaving(false)
     }
@@ -70,17 +82,18 @@ export default function TransacoesPage() {
       })
       toast.success("Transferência realizada!")
       setFTransferencia({ origemId: "", destinoId: "", valor: "" })
-      load()
+      loadTransacoes(1)
       setTab("historico")
-    } catch (e: any) {
-      toast.error(e.response?.data?.error || "Erro ao realizar transferência")
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "Erro ao realizar transferência")
     } finally {
       setSaving(false)
     }
   }
 
   const tipoBadge = (tipo: string) => {
-    const map: any = { DEPOSITO: "badge-green", SAQUE: "badge-red", TRANSFERENCIA: "badge-blue" }
+    const map: Record<string, string> = { DEPOSITO: "badge-green", SAQUE: "badge-red", TRANSFERENCIA: "badge-blue" }
     return map[tipo] ?? "badge-yellow"
   }
 
@@ -156,6 +169,7 @@ export default function TransacoesPage() {
                 </table>
               )}
             </div>
+            <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} onChange={loadTransacoes} />
           </div>
         )}
 

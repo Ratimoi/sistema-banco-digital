@@ -2,16 +2,25 @@ import { prisma } from "../lib/prisma"
 import { AppError } from "../utils/AppError"
 import { cartaoSelect } from "./cartaoService"
 import { CreateContaInput, UpdateContaInput } from "../schemas/contaSchema"
+import { PaginationQuery } from "../schemas/common"
+import { paginar } from "../utils/paginate"
 
 export const criar = (data: CreateContaInput) => {
   return prisma.conta.create({ data })
 }
 
-export const listar = () => {
-  return prisma.conta.findMany({
-    include: { cliente: { select: { id: true, nome: true } } },
-    orderBy: { id: "asc" },
-  })
+export const listar = (paginacao: PaginationQuery) => {
+  return paginar(
+    () => prisma.conta.count(),
+    (skip, take) =>
+      prisma.conta.findMany({
+        include: { cliente: { select: { id: true, nome: true } } },
+        orderBy: { id: "asc" },
+        skip,
+        take,
+      }),
+    paginacao,
+  )
 }
 
 const ULTIMAS_TRANSACOES = { orderBy: { createdAt: "desc" as const }, take: 50 }

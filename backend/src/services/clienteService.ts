@@ -1,6 +1,8 @@
 import { prisma } from "../lib/prisma"
 import { hashPassword } from "../utils/hash"
 import { CreateClienteInput, UpdateClienteInput } from "../schemas/clienteSchema"
+import { PaginationQuery } from "../schemas/common"
+import { paginar } from "../utils/paginate"
 
 const clienteSelect = {
   id: true,
@@ -19,11 +21,18 @@ export const criar = async (data: CreateClienteInput) => {
   })
 }
 
-export const listar = () => {
-  return prisma.cliente.findMany({
-    select: { ...clienteSelect, conta: true },
-    orderBy: { id: "asc" },
-  })
+export const listar = (paginacao: PaginationQuery) => {
+  return paginar(
+    () => prisma.cliente.count(),
+    (skip, take) =>
+      prisma.cliente.findMany({
+        select: { ...clienteSelect, conta: true },
+        orderBy: { id: "asc" },
+        skip,
+        take,
+      }),
+    paginacao,
+  )
 }
 
 export const buscarPorId = (id: number) => {

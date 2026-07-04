@@ -10,13 +10,13 @@ import {
 } from "../controllers/emprestimoController"
 import { validate } from "../middlewares/validate"
 import { requireNivel } from "../middlewares/nivel"
-import { idParamSchema } from "../schemas/common"
+import { idParamSchema, paginationQuerySchema } from "../schemas/common"
 import { createEmprestimoSchema, updateEmprestimoSchema } from "../schemas/emprestimoSchema"
 
 const router = Router()
 
 router.post("/", validate(createEmprestimoSchema), criarEmprestimo)
-router.get("/", listarEmprestimos)
+router.get("/", validate(paginationQuerySchema, "query"), listarEmprestimos)
 router.get("/:id", validate(idParamSchema, "params"), buscarEmprestimo)
 router.put("/:id", validate(idParamSchema, "params"), validate(updateEmprestimoSchema), atualizarEmprestimo)
 router.delete("/:id", validate(idParamSchema, "params"), requireNivel(3), deletarEmprestimo)

@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler"
 import { AppError } from "../utils/AppError"
 import * as clienteService from "../services/clienteService"
 import { registrarLog } from "../services/logService"
+import { paginationQuerySchema } from "../schemas/common"
 
 export const criarCliente = asyncHandler(async (req: Request, res: Response) => {
   const cliente = await clienteService.criar(req.body)
@@ -10,7 +11,7 @@ export const criarCliente = asyncHandler(async (req: Request, res: Response) => 
 })
 
 export const listarClientes = asyncHandler(async (req: Request, res: Response) => {
-  const clientes = await clienteService.listar()
+  const clientes = await clienteService.listar(paginationQuerySchema.parse(req.query))
   return res.json(clientes)
 })
 
