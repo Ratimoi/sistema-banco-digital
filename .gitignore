@@ -5,6 +5,7 @@ node_modules/
 # Ambiente
 .env
 */.env
+.env.render
 
 # Build / gerado
 generated/
