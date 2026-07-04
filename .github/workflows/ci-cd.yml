@@ -1,11 +1,8 @@
-name: CI/CD — Sistema Banco Digital
+name: CI — Sistema Banco Digital
 
 on:
   pull_request:
     branches: [main]
-
-env:
-  REGISTRY: ghcr.io
 
 jobs:
   ci-backend:
@@ -48,59 +45,3 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
-
-  docker-publish:
-    name: CD · Publicar imagens
-    runs-on: ubuntu-latest
-    needs: [ci-backend, ci-frontend]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/setup-buildx-action@v3
-      - name: Build e push — Backend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: true
-          tags: |
-            ghcr.io/ratimoi/sistema-banco-digital/backend:latest
-            ghcr.io/ratimoi/sistema-banco-digital/backend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-      - name: Build e push — Frontend
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          target: production
-          push: true
-          tags: |
-            ghcr.io/ratimoi/sistema-banco-digital/frontend:latest
-            ghcr.io/ratimoi/sistema-banco-digital/frontend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  deploy:
-    name: CD · Deploy
-    runs-on: ubuntu-latest
-    needs: docker-publish
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: production
-    steps:
-      - uses: appleboy/ssh-action@v1.0.3
-        with:
-          host:     ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key:      ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /opt/sistema-banco-digital
-            docker compose pull
-            docker compose up -d --remove-orphans
-            docker image prune -f
