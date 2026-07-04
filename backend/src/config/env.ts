@@ -8,8 +8,8 @@ const envSchema = z.object({
   DATABASE_SSL: z.string().optional(),
   JWT_SECRET: z.string().min(16, "JWT_SECRET deve ter pelo menos 16 caracteres"),
   JWT_EXPIRES_IN: z.string().default("8h"),
-  EMAIL_USER: z.string().optional(),
-  EMAIL_PASS: z.string().optional(),
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
   CORS_ORIGINS: z.string().optional(),
 })
 
