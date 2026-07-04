@@ -19,7 +19,7 @@ router.post("/", validate(createEmprestimoSchema), criarEmprestimo)
 router.get("/", listarEmprestimos)
 router.get("/:id", validate(idParamSchema, "params"), buscarEmprestimo)
 router.put("/:id", validate(idParamSchema, "params"), validate(updateEmprestimoSchema), atualizarEmprestimo)
-router.delete("/:id", validate(idParamSchema, "params"), deletarEmprestimo)
+router.delete("/:id", validate(idParamSchema, "params"), requireNivel(3), deletarEmprestimo)
 router.post("/:id/aprovar", validate(idParamSchema, "params"), requireNivel(2), aprovarEmprestimo)
 router.post("/:id/rejeitar", validate(idParamSchema, "params"), requireNivel(2), rejeitarEmprestimo)
 

@@ -14,14 +14,16 @@ export const listar = () => {
   })
 }
 
+const ULTIMAS_TRANSACOES = { orderBy: { createdAt: "desc" as const }, take: 50 }
+
 export const buscarPorId = async (id: number) => {
   const conta = await prisma.conta.findUnique({
     where: { id },
     include: {
       cliente: { select: { id: true, nome: true } },
       cartoes: { select: cartaoSelect },
-      transacoesEnviadas: true,
-      transacoesRecebidas: true,
+      transacoesEnviadas: ULTIMAS_TRANSACOES,
+      transacoesRecebidas: ULTIMAS_TRANSACOES,
     },
   })
   if (!conta) throw new AppError("Conta não encontrada", 404)
@@ -31,7 +33,7 @@ export const buscarPorId = async (id: number) => {
 export const listarPorCliente = (clienteId: number) => {
   return prisma.conta.findMany({
     where: { clienteId },
-    include: { transacoesEnviadas: true, transacoesRecebidas: true },
+    include: { transacoesEnviadas: ULTIMAS_TRANSACOES, transacoesRecebidas: ULTIMAS_TRANSACOES },
     orderBy: { id: "asc" },
   })
 }
