@@ -8,7 +8,7 @@ import {
 } from "../services/clienteService"
 import { Modal, Confirm, toast } from "../components/ui"
 
-const empty = { nome: "", cpf: "", email: "", senha: "" }
+const empty = { nome: "", cpf: "", email: "", senha: "", nivel: "0" }
 
 export default function ClientesPage() {
   const [clientes, setClientes] = useState<any[]>([])
@@ -43,21 +43,22 @@ export default function ClientesPage() {
   }
   const openEdit = (c: any) => {
     setEditing(c)
-    setForm({ nome: c.nome, cpf: c.cpf, email: c.email, senha: "" })
+    setForm({ nome: c.nome, cpf: c.cpf, email: c.email, senha: "", nivel: String(c.nivel ?? 0) })
     setModal(true)
   }
 
   const handleSubmit = async () => {
     setSaving(true)
     try {
+      const data = { ...form, nivel: Number(form.nivel) }
       if (editing) {
         // Senha em branco significa "não alterar" — o backend rejeita uma senha
-        // vazia (mínimo 6 caracteres), então ela só é enviada se preenchida.
-        const { senha, ...rest } = form
-        await updateCliente(editing.id, senha ? form : rest)
+        // vazia (mínimo 8 caracteres fortes), então ela só é enviada se preenchida.
+        const { senha, ...rest } = data
+        await updateCliente(editing.id, senha ? data : rest)
         toast.success("Cliente atualizado!")
       } else {
-        await createCliente(form)
+        await createCliente(data)
         toast.success("Cliente criado!")
       }
       setModal(false)
@@ -129,6 +130,7 @@ export default function ClientesPage() {
                     <th>CPF</th>
                     <th>E-mail</th>
                     <th>Conta</th>
+                    <th>Nível</th>
                     <th>Cadastro</th>
                     <th>Ações</th>
                   </tr>
@@ -147,6 +149,13 @@ export default function ClientesPage() {
                           <span className="badge badge-blue mono">{c.conta.numeroConta}</span>
                         ) : (
                           <span style={{ color: "var(--text3)" }}>—</span>
+                        )}
+                      </td>
+                      <td>
+                        {c.nivel > 0 ? (
+                          <span className="badge badge-green">Equipe · nível {c.nivel}</span>
+                        ) : (
+                          <span style={{ color: "var(--text3)" }}>Cliente</span>
                         )}
                       </td>
                       <td className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
@@ -204,11 +213,25 @@ export default function ClientesPage() {
             </div>
             <div className="field">
               <label>Senha</label>
-              <input type="password" value={form.senha} onChange={f("senha")} placeholder="••••••" />
+              <input
+                type="password"
+                value={form.senha}
+                onChange={f("senha")}
+                placeholder="Mínimo 8 caracteres, com maiúscula, número e símbolo"
+              />
             </div>
             <div className="field col-span-2">
               <label>E-mail</label>
               <input type="email" value={form.email} onChange={f("email")} placeholder="email@exemplo.com" />
+            </div>
+            <div className="field col-span-2">
+              <label>Nível (credencial especial)</label>
+              <select value={form.nivel} onChange={f("nivel")}>
+                <option value="0">Cliente comum</option>
+                <option value="1">Equipe · nível 1</option>
+                <option value="2">Equipe · nível 2</option>
+                <option value="3">Equipe · nível 3</option>
+              </select>
             </div>
           </div>
         </Modal>

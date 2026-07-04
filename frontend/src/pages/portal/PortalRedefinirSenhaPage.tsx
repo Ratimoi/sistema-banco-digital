@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react"
 import { useNavigate, useLocation, Link } from "react-router-dom"
-import { redefinirSenha } from "../../services/clienteAuthService"
+import { redefinirSenha } from "../../services/authService"
 import { toast } from "../../components/ui"
 
 export default function PortalRedefinirSenhaPage() {
@@ -19,7 +19,7 @@ export default function PortalRedefinirSenhaPage() {
     try {
       await redefinirSenha(form)
       toast.success("Senha redefinida com sucesso!")
-      navigate("/portal/login", { replace: true })
+      navigate("/login", { replace: true })
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Código inválido ou expirado")
     } finally {
@@ -55,7 +55,7 @@ export default function PortalRedefinirSenhaPage() {
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Redefinindo..." : "Redefinir senha"}
         </button>
-        <Link to="/portal/login" style={{ color: "var(--text2)", fontSize: 12, textAlign: "center" }}>
+        <Link to="/login" style={{ color: "var(--text2)", fontSize: 12, textAlign: "center" }}>
           Voltar ao login
         </Link>
       </form>

@@ -6,6 +6,7 @@ const clienteUpdateMock = vi.fn()
 const clienteCreateMock = vi.fn()
 const contaFindUniqueMock = vi.fn()
 const contaCreateMock = vi.fn()
+const logCreateMock = vi.fn()
 const enviarEmailRecuperacaoSenhaMock = vi.fn()
 
 vi.mock("../src/lib/prisma", () => ({
@@ -13,6 +14,9 @@ vi.mock("../src/lib/prisma", () => ({
     cliente: {
       findUnique: (...args: unknown[]) => clienteFindUniqueMock(...args),
       update: (...args: unknown[]) => clienteUpdateMock(...args),
+    },
+    log: {
+      create: (...args: unknown[]) => logCreateMock(...args),
     },
     $transaction: (fn: (tx: unknown) => unknown) =>
       fn({
@@ -36,6 +40,7 @@ const clienteBase = async (overrides: Record<string, unknown> = {}) => ({
   nome: "Cliente Teste",
   email: "cliente@banco.com",
   senha: await bcrypt.hash("SenhaForte123!", 10),
+  nivel: 0,
   tentativasFalhas: 0,
   bloqueadoAte: null,
   ultimoLogin: null,
@@ -97,6 +102,7 @@ describe("clienteAuthService.login", () => {
   beforeEach(() => {
     clienteFindUniqueMock.mockReset()
     clienteUpdateMock.mockReset()
+    logCreateMock.mockReset()
   })
 
   it("lança AppError quando o cliente não existe", async () => {
@@ -104,16 +110,27 @@ describe("clienteAuthService.login", () => {
     await expect(login({ email: "naoexiste@banco.com", senha: "123456" })).rejects.toThrow(AppError)
   })
 
-  it("lança AppError quando o cliente está bloqueado", async () => {
+  it("lança AppError quando o cliente está bloqueado e registra LOGIN_BLOQUEADO", async () => {
     clienteFindUniqueMock.mockResolvedValue(
       await clienteBase({ bloqueadoAte: new Date(Date.now() + 60_000) }),
     )
     await expect(login({ email: "cliente@banco.com", senha: "SenhaForte123!" })).rejects.toMatchObject({
       statusCode: 423,
     })
+    expect(logCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ acao: "LOGIN_BLOQUEADO" }) }),
+    )
   })
 
-  it("bloqueia o cliente após 3 tentativas inválidas", async () => {
+  it("registra LOGIN_FALHA quando a senha está incorreta", async () => {
+    clienteFindUniqueMock.mockResolvedValue(await clienteBase({ tentativasFalhas: 0 }))
+    await expect(login({ email: "cliente@banco.com", senha: "senhaerrada" })).rejects.toThrow(AppError)
+    expect(logCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ acao: "LOGIN_FALHA" }) }),
+    )
+  })
+
+  it("bloqueia o cliente após 3 tentativas inválidas e registra LOGIN_FALHA_BLOQUEIO", async () => {
     clienteFindUniqueMock.mockResolvedValue(await clienteBase({ tentativasFalhas: 2 }))
     await expect(login({ email: "cliente@banco.com", senha: "senhaerrada" })).rejects.toMatchObject({
       statusCode: 423,
@@ -121,14 +138,20 @@ describe("clienteAuthService.login", () => {
     const dataAtualizada = clienteUpdateMock.mock.calls[0][0].data
     expect(dataAtualizada.tentativasFalhas).toBe(0)
     expect(dataAtualizada.bloqueadoAte).toBeInstanceOf(Date)
+    expect(logCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ acao: "LOGIN_FALHA_BLOQUEIO" }) }),
+    )
   })
 
-  it("retorna token com tipo cliente e mensagem de primeiro acesso", async () => {
+  it("retorna token com nivel e mensagem de primeiro acesso, registrando LOGIN_SUCESSO", async () => {
     clienteFindUniqueMock.mockResolvedValue(await clienteBase({ ultimoLogin: null }))
     const result = await login({ email: "cliente@banco.com", senha: "SenhaForte123!" })
     expect(result.token).toEqual(expect.any(String))
     expect(result.mensagem).toMatch(/primeiro acesso/i)
-    expect(result.cliente).toEqual({ id: 1, nome: "Cliente Teste", email: "cliente@banco.com" })
+    expect(result.cliente).toEqual({ id: 1, nome: "Cliente Teste", email: "cliente@banco.com", nivel: 0 })
+    expect(logCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ acao: "LOGIN_SUCESSO" }) }),
+    )
   })
 })
 
@@ -136,14 +159,18 @@ describe("clienteAuthService.solicitarRecuperacaoSenha / redefinirSenha", () => 
   beforeEach(() => {
     clienteFindUniqueMock.mockReset()
     clienteUpdateMock.mockReset()
+    logCreateMock.mockReset()
     enviarEmailRecuperacaoSenhaMock.mockReset()
   })
 
-  it("envia e-mail de recuperação quando o cliente existe", async () => {
+  it("envia e-mail de recuperação e registra RECUPERACAO_SOLICITADA quando o cliente existe", async () => {
     clienteFindUniqueMock.mockResolvedValue(await clienteBase())
     const result = await solicitarRecuperacaoSenha({ email: "cliente@banco.com" })
     expect(enviarEmailRecuperacaoSenhaMock).toHaveBeenCalled()
     expect(result.message).toMatch(/código de recuperação/i)
+    expect(logCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ acao: "RECUPERACAO_SOLICITADA" }) }),
+    )
   })
 
   it("não revela se o cliente não existe", async () => {
@@ -162,7 +189,7 @@ describe("clienteAuthService.solicitarRecuperacaoSenha / redefinirSenha", () => 
     ).rejects.toMatchObject({ statusCode: 400 })
   })
 
-  it("redefine a senha com um código válido", async () => {
+  it("redefine a senha com um código válido e registra SENHA_REDEFINIDA", async () => {
     clienteFindUniqueMock.mockResolvedValue(
       await clienteBase({ resetToken: "123456", resetTokenExpiry: new Date(Date.now() + 60_000) }),
     )
@@ -173,5 +200,8 @@ describe("clienteAuthService.solicitarRecuperacaoSenha / redefinirSenha", () => 
     })
     expect(result.message).toMatch(/sucesso/i)
     expect(clienteUpdateMock).toHaveBeenCalled()
+    expect(logCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ acao: "SENHA_REDEFINIDA" }) }),
+    )
   })
 })

@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate } from "react-router-dom"
 import { ToastContainer } from "./components/ui"
-import { isAuthenticated, clearToken } from "./services/authService"
-import { isClienteAuthenticated, clearClienteToken } from "./services/clienteAuthService"
+import { isAuthenticated, getNivel, clearToken, clearNivel } from "./services/authService"
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import DashboardPage from "./pages/DashboardPage"
@@ -10,7 +9,6 @@ import ContasPage from "./pages/ContasPage"
 import CartoesPage from "./pages/CartoesPage"
 import EmprestimosPage from "./pages/EmprestimosPage"
 import TransacoesPage from "./pages/TransacoesPage"
-import PortalLoginPage from "./pages/portal/PortalLoginPage"
 import PortalCadastroPage from "./pages/portal/PortalCadastroPage"
 import PortalEsqueciSenhaPage from "./pages/portal/PortalEsqueciSenhaPage"
 import PortalRedefinirSenhaPage from "./pages/portal/PortalRedefinirSenhaPage"
@@ -25,7 +23,7 @@ const portalNavItems = [
 ]
 
 function RequireClienteAuth({ children }: { children: React.ReactNode }) {
-  if (!isClienteAuthenticated()) return <Navigate to="/portal/login" replace />
+  if (!isAuthenticated()) return <Navigate to="/login" replace />
   return <>{children}</>
 }
 
@@ -33,8 +31,9 @@ function PortalLayout() {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    clearClienteToken()
-    navigate("/portal/login", { replace: true })
+    clearToken()
+    clearNivel()
+    navigate("/login", { replace: true })
   }
 
   return (
@@ -87,6 +86,7 @@ const navItems = [
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   if (!isAuthenticated()) return <Navigate to="/login" replace />
+  if (getNivel() <= 0) return <Navigate to="/portal" replace />
   return <>{children}</>
 }
 
@@ -95,6 +95,7 @@ function AdminLayout() {
 
   const handleLogout = () => {
     clearToken()
+    clearNivel()
     navigate("/login", { replace: true })
   }
 
@@ -146,10 +147,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/portal/login" element={<PortalLoginPage />} />
-        <Route path="/portal/cadastro" element={<PortalCadastroPage />} />
-        <Route path="/portal/esqueci-senha" element={<PortalEsqueciSenhaPage />} />
-        <Route path="/portal/redefinir-senha" element={<PortalRedefinirSenhaPage />} />
+        <Route path="/cadastro" element={<PortalCadastroPage />} />
+        <Route path="/esqueci-senha" element={<PortalEsqueciSenhaPage />} />
+        <Route path="/redefinir-senha" element={<PortalRedefinirSenhaPage />} />
         <Route
           path="/portal/*"
           element={

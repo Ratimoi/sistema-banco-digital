@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { senhaForteSchema } from "./usuarioSchema"
+import { senhaForteSchema } from "./common"
 
 export const cadastroClienteSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório"),

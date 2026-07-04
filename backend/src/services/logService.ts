@@ -1,14 +1,14 @@
 import { prisma } from "../lib/prisma"
 
-export const registrarLog = (usuarioId: number | null, acao: string, detalhe?: string) => {
+export const registrarLog = (clienteId: number | null, acao: string, detalhe?: string) => {
   return prisma.log.create({
-    data: { usuarioId, acao, detalhe },
+    data: { clienteId, acao, detalhe },
   })
 }
 
 export const listarLogs = () => {
   return prisma.log.findMany({
-    include: { usuario: { select: { id: true, nome: true, email: true } } },
+    include: { cliente: { select: { id: true, nome: true, email: true } } },
     orderBy: { id: "desc" },
   })
 }
