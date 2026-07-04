@@ -8,11 +8,21 @@ import { AppError } from "../utils/AppError"
 // aleatoriamente entre os endereços IPv4 e IPv6 resolvidos, causando ENETUNREACH em parte
 // das tentativas. Conectamos nós mesmos via IPv4 e entregamos o socket já aberto ao
 // nodemailer, que só faz o upgrade para TLS por cima dele.
-const conectarSmtpIPv4 = (host: string, port: number) =>
+const conectarSmtpIPv4 = (host: string, port: number, timeoutMs = 10000) =>
   new Promise<net.Socket>((resolve, reject) => {
     const socket = net.createConnection({ host, port, family: 4 })
-    socket.once("connect", () => resolve(socket))
-    socket.once("error", reject)
+    const timer = setTimeout(() => {
+      socket.destroy()
+      reject(new Error(`Timeout ao conectar em ${host}:${port} via IPv4`))
+    }, timeoutMs)
+    socket.once("connect", () => {
+      clearTimeout(timer)
+      resolve(socket)
+    })
+    socket.once("error", (err) => {
+      clearTimeout(timer)
+      reject(err)
+    })
   })
 
 const criarTransporter = async () => {
