@@ -47,6 +47,7 @@ async function main() {
       validade: "12/30",
       cvv: "123",
       tipo: "credito",
+      limite: 5000,
       contaId: conta1.id,
     },
   })

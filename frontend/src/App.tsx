@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate } from "react-router-dom"
 import { ToastContainer } from "./components/ui"
 import { isAuthenticated, clearToken } from "./services/authService"
+import { isClienteAuthenticated, clearClienteToken } from "./services/clienteAuthService"
 import LoginPage from "./pages/LoginPage"
 import DashboardPage from "./pages/DashboardPage"
 import ClientesPage from "./pages/ClientesPage"
@@ -8,6 +9,71 @@ import ContasPage from "./pages/ContasPage"
 import CartoesPage from "./pages/CartoesPage"
 import EmprestimosPage from "./pages/EmprestimosPage"
 import TransacoesPage from "./pages/TransacoesPage"
+import PortalLoginPage from "./pages/portal/PortalLoginPage"
+import PortalCadastroPage from "./pages/portal/PortalCadastroPage"
+import PortalEsqueciSenhaPage from "./pages/portal/PortalEsqueciSenhaPage"
+import PortalRedefinirSenhaPage from "./pages/portal/PortalRedefinirSenhaPage"
+import PortalContaCartoesPage from "./pages/portal/PortalContaCartoesPage"
+import PortalTransacoesPage from "./pages/portal/PortalTransacoesPage"
+import PortalComunidadePage from "./pages/portal/PortalComunidadePage"
+
+const portalNavItems = [
+  { to: "/portal", label: "Minha Conta", icon: "▣" },
+  { to: "/portal/transacoes", label: "Transações", icon: "⇄" },
+  { to: "/portal/comunidade", label: "Comunidade", icon: "💬" },
+]
+
+function RequireClienteAuth({ children }: { children: React.ReactNode }) {
+  if (!isClienteAuthenticated()) return <Navigate to="/portal/login" replace />
+  return <>{children}</>
+}
+
+function PortalLayout() {
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    clearClienteToken()
+    navigate("/portal/login", { replace: true })
+  }
+
+  return (
+    <div className="layout">
+      <aside className="sidebar">
+        <div className="sidebar-logo">
+          <h1>BANCO</h1>
+          <span>Portal do Cliente</span>
+        </div>
+        {portalNavItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === "/portal"}
+            className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            {item.label}
+          </NavLink>
+        ))}
+        <button
+          className="nav-item"
+          onClick={handleLogout}
+          style={{ marginTop: "auto", border: "none", background: "none", width: "100%", textAlign: "left" }}
+        >
+          <span className="nav-icon">⏻</span>
+          Sair
+        </button>
+      </aside>
+
+      <main className="main">
+        <Routes>
+          <Route path="/" element={<PortalContaCartoesPage />} />
+          <Route path="/transacoes" element={<PortalTransacoesPage />} />
+          <Route path="/comunidade" element={<PortalComunidadePage />} />
+        </Routes>
+      </main>
+    </div>
+  )
+}
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: "◈" },
@@ -78,6 +144,18 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/portal/login" element={<PortalLoginPage />} />
+        <Route path="/portal/cadastro" element={<PortalCadastroPage />} />
+        <Route path="/portal/esqueci-senha" element={<PortalEsqueciSenhaPage />} />
+        <Route path="/portal/redefinir-senha" element={<PortalRedefinirSenhaPage />} />
+        <Route
+          path="/portal/*"
+          element={
+            <RequireClienteAuth>
+              <PortalLayout />
+            </RequireClienteAuth>
+          }
+        />
         <Route
           path="/*"
           element={

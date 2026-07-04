@@ -3,11 +3,12 @@ import { AppError } from "../utils/AppError"
 import { CreateCartaoInput, UpdateCartaoInput } from "../schemas/cartaoSchema"
 
 // CVV nunca é devolvido pela API, mesmo tendo sido informado na criação/atualização.
-const cartaoSelect = {
+export const cartaoSelect = {
   id: true,
   numero: true,
   validade: true,
   tipo: true,
+  limite: true,
   contaId: true,
 }
 

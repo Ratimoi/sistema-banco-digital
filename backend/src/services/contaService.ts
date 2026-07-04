@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma"
 import { AppError } from "../utils/AppError"
+import { cartaoSelect } from "./cartaoService"
 import { CreateContaInput, UpdateContaInput } from "../schemas/contaSchema"
 
 export const criar = (data: CreateContaInput) => {
@@ -18,7 +19,7 @@ export const buscarPorId = async (id: number) => {
     where: { id },
     include: {
       cliente: { select: { id: true, nome: true } },
-      cartoes: true,
+      cartoes: { select: cartaoSelect },
       transacoesEnviadas: true,
       transacoesRecebidas: true,
     },
@@ -33,6 +34,15 @@ export const listarPorCliente = (clienteId: number) => {
     include: { transacoesEnviadas: true, transacoesRecebidas: true },
     orderBy: { id: "asc" },
   })
+}
+
+export const buscarPorCliente = async (clienteId: number) => {
+  const conta = await prisma.conta.findUnique({
+    where: { clienteId },
+    include: { cartoes: { select: cartaoSelect } },
+  })
+  if (!conta) throw new AppError("Conta não encontrada", 404)
+  return conta
 }
 
 export const atualizar = (id: number, data: UpdateContaInput) => {

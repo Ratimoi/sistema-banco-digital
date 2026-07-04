@@ -6,13 +6,12 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      usuarioId?: number
-      usuarioNivel?: number
+      clienteId?: number
     }
   }
 }
 
-export const auth = (req: Request, res: Response, next: NextFunction) => {
+export const authCliente = (req: Request, res: Response, next: NextFunction) => {
   const header = req.headers.authorization
 
   if (!header?.startsWith("Bearer ")) {
@@ -22,15 +21,11 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   const token = header.slice("Bearer ".length)
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET) as jwt.JwtPayload & {
-      nivel?: number
-      tipo?: string
-    }
-    if (payload.tipo === "cliente") {
+    const payload = jwt.verify(token, env.JWT_SECRET) as jwt.JwtPayload & { tipo?: string }
+    if (payload.tipo !== "cliente") {
       return res.status(401).json({ error: "Token inválido para este recurso" })
     }
-    req.usuarioId = Number(payload.sub)
-    req.usuarioNivel = payload.nivel ?? 1
+    req.clienteId = Number(payload.sub)
     next()
   } catch {
     return res.status(401).json({ error: "Token inválido ou expirado" })
