@@ -38,8 +38,8 @@ export default function TransacoesPage() {
       setFDeposito({ contaId: "", valor: "" })
       load()
       setTab("historico")
-    } catch {
-      toast.error("Erro ao realizar depósito")
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Erro ao realizar depósito")
     } finally {
       setSaving(false)
     }

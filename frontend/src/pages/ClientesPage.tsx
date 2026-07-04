@@ -51,7 +51,10 @@ export default function ClientesPage() {
     setSaving(true)
     try {
       if (editing) {
-        await updateCliente(editing.id, form)
+        // Senha em branco significa "não alterar" — o backend rejeita uma senha
+        // vazia (mínimo 6 caracteres), então ela só é enviada se preenchida.
+        const { senha, ...rest } = form
+        await updateCliente(editing.id, senha ? form : rest)
         toast.success("Cliente atualizado!")
       } else {
         await createCliente(form)
