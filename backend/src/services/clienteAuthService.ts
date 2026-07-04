@@ -4,7 +4,8 @@ import { Prisma } from "../../generated/prisma"
 import { prisma } from "../lib/prisma"
 import { env } from "../config/env"
 import { AppError } from "../utils/AppError"
-import { hashPassword } from "./authService"
+import { hashPassword } from "../utils/hash"
+import { registrarLog } from "./logService"
 import { enviarEmailRecuperacaoSenha } from "./emailService"
 import {
   CadastroClienteInput,
@@ -51,6 +52,7 @@ export const login = async ({ email, senha }: LoginClienteInput) => {
   if (!cliente) throw new AppError("E-mail ou senha inválidos", 401)
 
   if (cliente.bloqueadoAte && cliente.bloqueadoAte > new Date()) {
+    await registrarLog(cliente.id, "LOGIN_BLOQUEADO", `Tentativa de login enquanto bloqueado: ${email}`)
     throw new AppError(
       "Usuário bloqueado por excesso de tentativas inválidas. Tente novamente mais tarde.",
       423,
@@ -71,6 +73,12 @@ export const login = async ({ email, senha }: LoginClienteInput) => {
       },
     })
 
+    await registrarLog(
+      cliente.id,
+      bloquear ? "LOGIN_FALHA_BLOQUEIO" : "LOGIN_FALHA",
+      `Tentativa ${tentativas} de ${MAX_TENTATIVAS} para ${email}`,
+    )
+
     if (bloquear) {
       throw new AppError(
         `Usuário bloqueado por ${BLOQUEIO_MINUTOS} minutos após ${MAX_TENTATIVAS} tentativas inválidas.`,
@@ -88,7 +96,9 @@ export const login = async ({ email, senha }: LoginClienteInput) => {
     data: { tentativasFalhas: 0, bloqueadoAte: null, ultimoLogin: new Date() },
   })
 
-  const token = jwt.sign({ sub: cliente.id, tipo: "cliente" }, env.JWT_SECRET, {
+  await registrarLog(cliente.id, "LOGIN_SUCESSO", `Login de ${email}`)
+
+  const token = jwt.sign({ sub: cliente.id, nivel: cliente.nivel }, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"],
   })
 
@@ -99,7 +109,7 @@ export const login = async ({ email, senha }: LoginClienteInput) => {
   return {
     token,
     mensagem,
-    cliente: { id: cliente.id, nome: cliente.nome, email: cliente.email },
+    cliente: { id: cliente.id, nome: cliente.nome, email: cliente.email, nivel: cliente.nivel },
   }
 }
 
@@ -119,6 +129,7 @@ export const solicitarRecuperacaoSenha = async ({ email }: EsqueciSenhaClienteIn
     })
 
     await enviarEmailRecuperacaoSenha(cliente.email, cliente.nome, codigo)
+    await registrarLog(cliente.id, "RECUPERACAO_SOLICITADA", `Código de recuperação enviado para ${email}`)
   }
 
   return { message: "Se o e-mail estiver cadastrado, um código de recuperação foi enviado." }
@@ -147,6 +158,8 @@ export const redefinirSenha = async ({ email, codigo, novaSenha }: RedefinirSenh
       bloqueadoAte: null,
     },
   })
+
+  await registrarLog(cliente.id, "SENHA_REDEFINIDA", `Senha redefinida via recuperação para ${email}`)
 
   return { message: "Senha redefinida com sucesso" }
 }

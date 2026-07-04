@@ -3,12 +3,11 @@ import cors from "cors"
 import helmet from "helmet"
 import rateLimit from "express-rate-limit"
 import { env } from "./config/env"
-import authRoutes from "./routes/authRoutes"
 import routes from "./routes"
 import clienteAuthRoutes from "./routes/clienteAuthRoutes"
 import clientePortalRoutes from "./routes/clientePortalRoutes"
 import { auth } from "./middlewares/auth"
-import { authCliente } from "./middlewares/authCliente"
+import { requireNivel } from "./middlewares/nivel"
 import { errorHandler } from "./middlewares/errorHandler"
 
 const app = express()
@@ -30,13 +29,11 @@ app.use(
 )
 app.use(express.json())
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10 })
 const clienteAuthLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10 })
 
-app.use("/api/auth", authLimiter, authRoutes)
-app.use("/api/cliente-auth", clienteAuthLimiter, clienteAuthRoutes)
-app.use("/api/cliente", authCliente, clientePortalRoutes)
-app.use("/api", auth, routes)
+app.use("/api/auth", clienteAuthLimiter, clienteAuthRoutes)
+app.use("/api/cliente", auth, clientePortalRoutes)
+app.use("/api", auth, requireNivel(1), routes)
 
 app.use(errorHandler)
 

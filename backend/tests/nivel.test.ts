@@ -21,7 +21,7 @@ const mockRes = () => {
 
 describe("requireNivel", () => {
   it("bloqueia com 403 quando o nivel do usuario é insuficiente", () => {
-    const req = { usuarioNivel: 1 } as never
+    const req = { nivel: 1 } as never
     const res = mockRes()
     const next = vi.fn()
 
@@ -32,7 +32,7 @@ describe("requireNivel", () => {
   })
 
   it("permite seguir quando o nivel do usuario é suficiente", () => {
-    const req = { usuarioNivel: 3 } as never
+    const req = { nivel: 3 } as never
     const res = mockRes()
     const next = vi.fn()
 

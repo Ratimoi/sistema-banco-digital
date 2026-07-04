@@ -1,14 +1,23 @@
 import { describe, expect, it } from "vitest"
 import { createClienteSchema } from "../src/schemas/clienteSchema"
 import { transferenciaSchema } from "../src/schemas/transacaoSchema"
-import { idParamSchema } from "../src/schemas/common"
-import { senhaForteSchema, createUsuarioSchema } from "../src/schemas/usuarioSchema"
+import { idParamSchema, senhaForteSchema } from "../src/schemas/common"
 
 describe("createClienteSchema", () => {
   it("rejeita CPF com formato inválido", () => {
     const result = createClienteSchema.safeParse({
       nome: "João Silva",
       cpf: "123",
+      email: "joao@email.com",
+      senha: "SenhaForte123!",
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it("rejeita senha fraca", () => {
+    const result = createClienteSchema.safeParse({
+      nome: "João Silva",
+      cpf: "12345678900",
       email: "joao@email.com",
       senha: "123456",
     })
@@ -20,9 +29,21 @@ describe("createClienteSchema", () => {
       nome: "João Silva",
       cpf: "12345678900",
       email: "joao@email.com",
-      senha: "123456",
+      senha: "SenhaForte123!",
     })
     expect(result.success).toBe(true)
+  })
+
+  it("aceita nivel opcional para conceder credencial de equipe", () => {
+    const result = createClienteSchema.safeParse({
+      nome: "João Silva",
+      cpf: "12345678900",
+      email: "joao@email.com",
+      senha: "SenhaForte123!",
+      nivel: 2,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.nivel).toBe(2)
   })
 })
 
@@ -48,27 +69,6 @@ describe("senhaForteSchema", () => {
     ["SenhaForte123!", true],
   ])("%s -> valido=%s", (senha, esperado) => {
     expect(senhaForteSchema.safeParse(senha).success).toBe(esperado)
-  })
-})
-
-describe("createUsuarioSchema", () => {
-  it("rejeita senha fraca", () => {
-    const result = createUsuarioSchema.safeParse({
-      nome: "Admin",
-      email: "admin@banco.com",
-      senha: "123456",
-    })
-    expect(result.success).toBe(false)
-  })
-
-  it("aceita payload valido com nivel padrao", () => {
-    const result = createUsuarioSchema.safeParse({
-      nome: "Admin",
-      email: "admin@banco.com",
-      senha: "SenhaForte123!",
-    })
-    expect(result.success).toBe(true)
-    if (result.success) expect(result.data.nivel).toBe(1)
   })
 })
 

@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { esqueciSenha } from "../../services/clienteAuthService"
+import { esqueciSenha } from "../../services/authService"
 import { toast } from "../../components/ui"
 
 export default function PortalEsqueciSenhaPage() {
@@ -14,7 +14,7 @@ export default function PortalEsqueciSenhaPage() {
     try {
       await esqueciSenha(email)
       toast.success("Se o e-mail estiver cadastrado, um código foi enviado.")
-      navigate("/portal/redefinir-senha", { replace: true, state: { email } })
+      navigate("/redefinir-senha", { replace: true, state: { email } })
     } catch {
       toast.error("Erro ao solicitar recuperação")
     } finally {
@@ -43,7 +43,7 @@ export default function PortalEsqueciSenhaPage() {
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Enviando..." : "Enviar código"}
         </button>
-        <Link to="/portal/login" style={{ color: "var(--text2)", fontSize: 12, textAlign: "center" }}>
+        <Link to="/login" style={{ color: "var(--text2)", fontSize: 12, textAlign: "center" }}>
           Voltar ao login
         </Link>
       </form>

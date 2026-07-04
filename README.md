@@ -68,7 +68,11 @@ A aplicação simula operações bancárias reais, permitindo:
 └───────────────┘
 ```
 
-Todas as rotas em `/api`, exceto `/api/auth/login`, exigem um token JWT (`Authorization: Bearer <token>`) obtido através do login de um usuário administrador.
+Existe um único modelo de conta (`Cliente`) e um único login (`/api/auth/login`). A
+conta possui um campo `nivel` (0 = cliente comum, 1-3 = equipe do banco — a
+"credencial especial"). Rotas em `/api/*` (gestão administrativa) exigem um token
+JWT válido **e** `nivel >= 1`; rotas em `/api/cliente/*` (autoatendimento) exigem
+apenas um token válido, de qualquer nível.
 
 ---
 
@@ -161,14 +165,6 @@ Cliente (1) ──────── (N) Conta
 
 ## Entidades
 
-### Usuario (administrador do painel)
-
-* id
-* nome
-* email
-* senha (hash bcrypt, nunca devolvida pela API)
-* createdAt
-
 ### Cliente
 
 * id
@@ -176,6 +172,7 @@ Cliente (1) ──────── (N) Conta
 * cpf
 * email
 * senha (hash bcrypt, nunca devolvida pela API)
+* nivel (0 = cliente comum, 1-3 = equipe do banco — concedido por um administrador nível 3 ao editar o cliente)
 * createdAt
 
 ### Conta
@@ -373,7 +370,7 @@ Executar migrations:
 npx prisma migrate dev
 ```
 
-Popular banco (cria também o usuário administrador `admin@banco.com` / `admin123` — troque a senha em produção):
+Popular banco (cria também a conta de equipe `admin@banco.com` / `SenhaForte123!`, nível 3 — troque a senha em produção):
 
 ```bash
 npx prisma db seed
@@ -437,13 +434,13 @@ Content-Type: application/json
 
 {
     "email": "admin@banco.com",
-    "senha": "admin123"
+    "senha": "SenhaForte123!"
 }
 ```
 
 Resposta inclui uma mensagem de boas-vindas com a data do último acesso (ou aviso de primeiro
-acesso), além do token e do nível do usuário. Após 3 tentativas de senha inválida, o usuário fica
-bloqueado por 15 minutos (`423 Locked`).
+acesso), além do token e do `nivel` da conta. Após 3 tentativas de senha inválida, a conta fica
+bloqueada por 15 minutos (`423 Locked`).
 
 ```http
 POST /api/auth/esqueci-senha
@@ -462,17 +459,12 @@ Content-Type: application/json
 { "email": "admin@banco.com", "codigo": "123456", "novaSenha": "SenhaForte123!" }
 ```
 
-## Usuários (administradores do painel)
-
-| Método | Endpoint      |
-| ------ | ------------- |
-| GET    | /api/usuarios |
-| POST   | /api/usuarios |
-
 A senha deve ter no mínimo 8 caracteres, com letra minúscula, maiúscula, número e símbolo. Não é
-permitido cadastrar dois usuários com o mesmo e-mail. Excluir clientes ou contas exige um usuário
-de **nível 3** (`403 Forbidden` caso contrário); veja `ADMIN_NIVEL` em
-[backend/prisma/createAdmin.ts](backend/prisma/createAdmin.ts).
+permitido cadastrar dois clientes com o mesmo e-mail. Excluir clientes ou contas, e aprovar/rejeitar
+empréstimos, exigem nível 3 e nível 2 respectivamente (`403 Forbidden` caso contrário). A primeira
+conta de equipe é criada via `ADMIN_EMAIL`/`ADMIN_SENHA`/`ADMIN_CPF`/`ADMIN_NIVEL` em
+[backend/prisma/createAdmin.ts](backend/prisma/createAdmin.ts); contas adicionais recebem a
+credencial editando o campo "Nível" na tela de Clientes do painel.
 
 ## Clientes
 
@@ -568,16 +560,17 @@ As verificações incluem:
 
 # 🔒 Segurança
 
-* Autenticação via JWT em todas as rotas administrativas (`/api/*`, exceto `/api/auth`)
-* Senhas de clientes e do usuário administrador com hash bcrypt (nunca gravadas ou devolvidas em texto puro)
-* Validação de senha forte (mínimo 8 caracteres, minúscula, maiúscula, número e símbolo) na
-  criação de usuários administradores
+* Autenticação via JWT única para toda a aplicação; rotas administrativas (`/api/*`, exceto
+  `/api/auth`) exigem além do token um `nivel >= 1` na conta
+* Senhas com hash bcrypt (nunca gravadas ou devolvidas em texto puro) e validação de senha forte
+  (mínimo 8 caracteres, minúscula, maiúscula, número e símbolo) em toda criação/redefinição
 * Bloqueio de conta por 15 minutos após 3 tentativas de login inválidas
 * Registro de data/hora do último login, exibida na resposta do login
-* Níveis de acesso por usuário (`nivel` 1-3): exclusão de clientes/contas exige nível 3
+* Níveis de acesso por conta (`nivel` 0-3): 0 é cliente comum, 1-3 é equipe do banco; exclusão de
+  clientes/contas exige nível 3, aprovação/rejeição de empréstimos exige nível 2
 * Recuperação de senha por e-mail com código temporário de 6 dígitos (expira em 15 minutos)
-* Tabela de `Log` registrando login (sucesso/falha/bloqueio), criação de usuário, recuperação e
-  redefinição de senha e exclusões de clientes/contas
+* Tabela de `Log` registrando login (sucesso/falha/bloqueio), recuperação e redefinição de senha e
+  exclusões de clientes/contas
 * CVV de cartão nunca é devolvido pela API
 * Validação de toda entrada da API com Zod
 * Rate limiting no login e nas operações financeiras (depósito, saque, transferência)

@@ -31,6 +31,6 @@ export const atualizarConta = asyncHandler(async (req: Request, res: Response) =
 export const deletarConta = asyncHandler(async (req: Request, res: Response) => {
   const id = Number(req.params.id)
   await contaService.deletar(id)
-  await registrarLog(req.usuarioId ?? null, "CONTA_EXCLUIDA", `Conta #${id} excluída`)
+  await registrarLog(req.clienteId ?? null, "CONTA_EXCLUIDA", `Conta #${id} excluída`)
   return res.json({ message: "Conta deletada com sucesso" })
 })

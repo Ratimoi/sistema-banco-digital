@@ -22,6 +22,36 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 
 ## [Unreleased]
 
+### Added
+- Portal de autoatendimento do cliente (`/portal/*`): cadastro (cria cliente e conta juntos),
+  transações identificadas por número de cartão (saque só com cartão de débito, transferência
+  resolvendo a conta de destino pelo cartão), solicitação de empréstimo via cartão de crédito
+  (validado contra o limite do cartão, liberado apenas após aprovação da equipe) e mural de
+  comunidade entre clientes.
+- Ações de aprovar/rejeitar empréstimo na tela de Empréstimos do painel (nível 2+).
+- Página inicial (`/`) com acesso único de entrada para clientes e equipe.
+
+### Changed
+- **Unificação de contas**: o model `Usuario` foi removido. Toda conta agora é um `Cliente`, que
+  ganhou um campo `nivel` (0 = cliente comum, 1-3 = equipe — a "credencial especial"). Existe um
+  único login (`/api/auth/login`); após autenticar, contas com `nivel > 0` acessam o painel
+  administrativo (`/admin`) e as demais o portal do cliente (`/portal`).
+- A tabela `Log` passa a referenciar `Cliente` em vez de `Usuario`.
+- Cadastro/edição de cliente pelo painel administrativo passa a exigir senha forte (antes aceitava
+  senhas fracas de 6 caracteres) e ganha um campo "Nível" para conceder a credencial de equipe.
+- Painel administrativo movido de `/` para `/admin/*`; páginas de cadastro/recuperação de senha do
+  cliente movidas de `/portal/cadastro` etc. para `/cadastro`, já que são públicas (pré-login).
+- Redesign visual (Inter para texto corrido, paleta refinada) compartilhado pelos dois portais.
+
+### Removed
+- Endpoint `/api/usuarios` (CRUD de administradores) — conceder a credencial de equipe agora é
+  feito editando o `nivel` de um `Cliente` existente pela tela de Clientes do painel.
+
+### Security
+- Corrige uma brecha introduzida pela unificação de login: rotas administrativas (`/api/*`, exceto
+  `/api/auth`) agora exigem explicitamente `nivel >= 1`, e não apenas um token válido — sem essa
+  checagem, qualquer cliente autenticado poderia acessar endpoints administrativos diretamente.
+
 ## [1.1.0] - 2026-07-04
 
 ### Added
