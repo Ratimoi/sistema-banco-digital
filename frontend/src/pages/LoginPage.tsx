@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       const { data } = await login(email, senha)
       setToken(data.token)
-      navigate("/", { replace: true })
+      navigate("/admin", { replace: true })
     } catch {
       toast.error("E-mail ou senha inválidos")
     } finally {
