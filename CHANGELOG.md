@@ -75,6 +75,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   `Transacao.contaDestinoId`) — o Postgres, diferente do MySQL, não cria índice automático
   em coluna de chave estrangeira.
 
+### Fixed
+- Envio de e-mail (recuperação de senha e relatório de transações) falhava intermitentemente em
+  produção com `ENETUNREACH`: o Render não tem rota de saída IPv6 para o SMTP do Gmail, mas o
+  nodemailer sorteia aleatoriamente entre os endereços IPv4 e IPv6 resolvidos. Agora a conexão é
+  aberta explicitamente via IPv4 antes de ser entregue ao nodemailer.
+
 ## [1.1.0] - 2026-07-04
 
 ### Added

@@ -1,19 +1,37 @@
+import net from "net"
 import nodemailer from "nodemailer"
 import { prisma } from "../lib/prisma"
 import { env } from "../config/env"
 import { AppError } from "../utils/AppError"
 
-const criarTransporter = () =>
-  nodemailer.createTransport({
-    service: "gmail",
+// O Render não tem rota de saída IPv6 para o SMTP do Gmail, mas o nodemailer sorteia
+// aleatoriamente entre os endereços IPv4 e IPv6 resolvidos, causando ENETUNREACH em parte
+// das tentativas. Conectamos nós mesmos via IPv4 e entregamos o socket já aberto ao
+// nodemailer, que só faz o upgrade para TLS por cima dele.
+const conectarSmtpIPv4 = (host: string, port: number) =>
+  new Promise<net.Socket>((resolve, reject) => {
+    const socket = net.createConnection({ host, port, family: 4 })
+    socket.once("connect", () => resolve(socket))
+    socket.once("error", reject)
+  })
+
+const criarTransporter = async () => {
+  const socket = await conectarSmtpIPv4("smtp.gmail.com", 465)
+  return nodemailer.createTransport({
+    connection: socket,
+    // O socket já vem conectado, então o nodemailer não sabe o hostname pra validar o
+    // certificado TLS — sem isso ele valida contra "localhost" e o handshake falha.
+    host: "smtp.gmail.com",
+    secure: true,
     auth: {
       user: env.EMAIL_USER,
       pass: env.EMAIL_PASS,
     },
   })
+}
 
 export const enviarEmailRecuperacaoSenha = async (email: string, nome: string, codigo: string) => {
-  const transporter = criarTransporter()
+  const transporter = await criarTransporter()
 
   await transporter.sendMail({
     from: "Banco API <no-reply@banco.com>",
@@ -59,7 +77,7 @@ export const enviarEmailRelatorio = async (clienteId: number) => {
           .join("\n")
       : "Nenhuma transação encontrada."
 
-  const transporter = criarTransporter()
+  const transporter = await criarTransporter()
 
   await transporter.sendMail({
     from: "Banco API <no-reply@banco.com>",
