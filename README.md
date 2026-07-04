@@ -255,7 +255,7 @@ A API está disponível publicamente através do Render:
 
 **API Base URL**
 
-[Sistema Bancário Digital API](https://sistema-banco-digital-1.onrender.com?utm_source=chatgpt.com)
+[Sistema Bancário Digital API](https://sistema-banco-digital-1.onrender.com)
 
 Todas as rotas descritas nesta documentação utilizam o prefixo:
 
@@ -329,9 +329,9 @@ O backend encontra-se hospedado na plataforma Render.
 
 Principais características do ambiente:
 
-* Deploy automático via GitHub
-* Build contínua através de CI/CD
-* Banco de dados MySQL integrado
+* Deploy automático a cada push na branch `main` (Render observa o repositório diretamente)
+* Pipeline de CI (lint, build e testes) roda via GitHub Actions em cada pull request para `main`
+* Banco de dados PostgreSQL (Supabase)
 * Disponibilidade pública via HTTPS
 * Certificado SSL automático
 
