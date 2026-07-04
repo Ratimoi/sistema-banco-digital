@@ -9,13 +9,13 @@ import {
 } from "../controllers/contaController"
 import { validate } from "../middlewares/validate"
 import { requireNivel } from "../middlewares/nivel"
-import { idParamSchema, clienteIdParamSchema } from "../schemas/common"
+import { idParamSchema, clienteIdParamSchema, paginationQuerySchema } from "../schemas/common"
 import { createContaSchema, updateContaSchema } from "../schemas/contaSchema"
 
 const router = Router()
 
 router.post("/", validate(createContaSchema), criarConta)
-router.get("/", listarContas)
+router.get("/", validate(paginationQuerySchema, "query"), listarContas)
 router.get("/cliente/:clienteId", validate(clienteIdParamSchema, "params"), contasPorCliente)
 router.get("/:id", validate(idParamSchema, "params"), buscarConta)
 router.put("/:id", validate(idParamSchema, "params"), validate(updateContaSchema), atualizarConta)

@@ -1,8 +1,5 @@
-/// <reference types="vite/client" />
-import axios from "axios"
+import { createApiClient } from "./httpClient"
 
-const authApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api/auth` : "/api/auth",
-})
+const authApi = createApiClient("/api/auth", { withAuth: false })
 
 export default authApi

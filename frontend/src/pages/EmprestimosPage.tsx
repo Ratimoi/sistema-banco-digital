@@ -6,119 +6,105 @@ import {
   deleteEmprestimo,
   aprovarEmprestimo,
   rejeitarEmprestimo,
+  EmprestimoInput,
 } from "../services/emprestimoService"
 import { getClientes } from "../services/clienteService"
-import { Modal, Confirm, toast } from "../components/ui"
+import { Modal, Confirm, Pagination, toast } from "../components/ui"
+import { useCrudPage } from "../hooks/useCrudPage"
+import { Cliente, Emprestimo } from "../types"
 
-const empty = { valor: "", taxaJuros: "", parcelas: "", status: "ativo", clienteId: "" }
+interface EmprestimoForm {
+  valor: string
+  taxaJuros: string
+  parcelas: string
+  status: string
+  clienteId: string
+}
+
+const empty: EmprestimoForm = { valor: "", taxaJuros: "", parcelas: "", status: "ativo", clienteId: "" }
+
+const buildPayload = (form: EmprestimoForm): EmprestimoInput => ({
+  valor: Number(form.valor),
+  taxaJuros: Number(form.taxaJuros),
+  parcelas: Number(form.parcelas),
+  status: form.status,
+  clienteId: Number(form.clienteId),
+})
+
+const statusBadge = (s: string) => {
+  const map: Record<string, string> = {
+    pendente: "badge-yellow",
+    ativo: "badge-green",
+    rejeitado: "badge-red",
+    quitado: "badge-blue",
+    inadimplente: "badge-red",
+  }
+  return map[s] ?? "badge-yellow"
+}
 
 export default function EmprestimosPage() {
-  const [emprestimos, setEmprestimos] = useState<any[]>([])
-  const [clientes, setClientes] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modal, setModal] = useState(false)
-  const [editing, setEditing] = useState<any>(null)
-  const [form, setForm] = useState<any>(empty)
-  const [saving, setSaving] = useState(false)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
-  const [deleting, setDeleting] = useState(false)
-  const [processandoId, setProcessandoId] = useState<number | null>(null)
-
-  const load = async () => {
-    try {
-      const [e, c] = await Promise.all([getEmprestimos(), getClientes()])
-      setEmprestimos(e.data)
-      setClientes(c.data)
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  const openCreate = () => {
-    setEditing(null)
-    setForm(empty)
-    setModal(true)
-  }
-  const openEdit = (e: any) => {
-    setEditing(e)
-    setForm({
+  const {
+    dados: emprestimos,
+    total,
+    pagina,
+    totalPaginas,
+    loading,
+    modal,
+    setModal,
+    editing,
+    form,
+    saving,
+    confirmId,
+    setConfirmId,
+    deleting,
+    changePage,
+    openCreate,
+    openEdit,
+    handleSubmit,
+    handleDelete,
+    f,
+  } = useCrudPage<Emprestimo, EmprestimoForm, EmprestimoInput>({
+    fetchPage: getEmprestimos,
+    create: createEmprestimo,
+    update: updateEmprestimo,
+    remove: deleteEmprestimo,
+    emptyForm: empty,
+    toEditForm: (e) => ({
       valor: e.valor,
       taxaJuros: e.taxaJuros,
-      parcelas: e.parcelas,
+      parcelas: String(e.parcelas),
       status: e.status,
-      clienteId: e.clienteId,
-    })
-    setModal(true)
-  }
+      clienteId: String(e.clienteId),
+    }),
+    buildPayload,
+    messages: {
+      created: "Empréstimo criado!",
+      updated: "Empréstimo atualizado!",
+      deleted: "Empréstimo deletado!",
+      loadError: "Erro ao carregar dados",
+      saveError: "Erro ao salvar empréstimo",
+      deleteError: "Erro ao deletar empréstimo",
+    },
+  })
 
-  const handleSubmit = async () => {
-    setSaving(true)
-    try {
-      const data = {
-        ...form,
-        valor: Number(form.valor),
-        taxaJuros: Number(form.taxaJuros),
-        parcelas: Number(form.parcelas),
-        clienteId: Number(form.clienteId),
-      }
-      if (editing) {
-        await updateEmprestimo(editing.id, data)
-        toast.success("Empréstimo atualizado!")
-      } else {
-        await createEmprestimo(data)
-        toast.success("Empréstimo criado!")
-      }
-      setModal(false)
-      load()
-    } catch {
-      toast.error("Erro ao salvar empréstimo")
-    } finally {
-      setSaving(false)
-    }
-  }
+  const [clientes, setClientes] = useState<Cliente[]>([])
+  const [processandoId, setProcessandoId] = useState<number | null>(null)
 
-  const handleDelete = async () => {
-    if (!confirmId) return
-    setDeleting(true)
-    try {
-      await deleteEmprestimo(confirmId)
-      toast.success("Empréstimo deletado!")
-      setConfirmId(null)
-      load()
-    } catch {
-      toast.error("Erro ao deletar empréstimo")
-    } finally {
-      setDeleting(false)
-    }
-  }
-
-  const f = (k: string) => (e: any) => setForm((prev: any) => ({ ...prev, [k]: e.target.value }))
-
-  const statusBadge = (s: string) => {
-    const map: any = {
-      pendente: "badge-yellow",
-      ativo: "badge-green",
-      rejeitado: "badge-red",
-      quitado: "badge-blue",
-      inadimplente: "badge-red",
-    }
-    return map[s] ?? "badge-yellow"
-  }
+  useEffect(() => {
+    getClientes(1, 100)
+      .then((res) => setClientes(res.data.dados))
+      .catch(() => toast.error("Erro ao carregar clientes"))
+  }, [])
 
   const handleAprovar = async (id: number) => {
     setProcessandoId(id)
     try {
       await aprovarEmprestimo(id)
       toast.success("Empréstimo aprovado!")
-      load()
-    } catch (e: any) {
-      toast.error(e.response?.data?.error || "Erro ao aprovar empréstimo")
+      changePage(pagina)
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "Erro ao aprovar empréstimo")
     } finally {
       setProcessandoId(null)
     }
@@ -129,9 +115,10 @@ export default function EmprestimosPage() {
     try {
       await rejeitarEmprestimo(id)
       toast.success("Empréstimo rejeitado!")
-      load()
-    } catch (e: any) {
-      toast.error(e.response?.data?.error || "Erro ao rejeitar empréstimo")
+      changePage(pagina)
+    } catch (e) {
+      const message = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      toast.error(message || "Erro ao rejeitar empréstimo")
     } finally {
       setProcessandoId(null)
     }
@@ -142,7 +129,7 @@ export default function EmprestimosPage() {
       <div className="page-header">
         <div>
           <div className="page-title">Empréstimos</div>
-          <div className="page-subtitle">{emprestimos.length} registros</div>
+          <div className="page-subtitle">{total} registros</div>
         </div>
         <button className="btn btn-primary" onClick={openCreate}>
           + Novo Empréstimo
@@ -223,6 +210,7 @@ export default function EmprestimosPage() {
               </table>
             )}
           </div>
+          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} onChange={changePage} />
         </div>
       </div>
 

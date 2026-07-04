@@ -1,6 +1,8 @@
 import { prisma } from "../lib/prisma"
 import { AppError } from "../utils/AppError"
 import { CreateCartaoInput, UpdateCartaoInput } from "../schemas/cartaoSchema"
+import { PaginationQuery } from "../schemas/common"
+import { paginar } from "../utils/paginate"
 
 // CVV nunca é devolvido pela API, mesmo tendo sido informado na criação/atualização.
 export const cartaoSelect = {
@@ -16,11 +18,18 @@ export const criar = (data: CreateCartaoInput) => {
   return prisma.cartao.create({ data, select: cartaoSelect })
 }
 
-export const listar = () => {
-  return prisma.cartao.findMany({
-    select: { ...cartaoSelect, conta: { select: { id: true, numeroConta: true } } },
-    orderBy: { id: "asc" },
-  })
+export const listar = (paginacao: PaginationQuery) => {
+  return paginar(
+    () => prisma.cartao.count(),
+    (skip, take) =>
+      prisma.cartao.findMany({
+        select: { ...cartaoSelect, conta: { select: { id: true, numeroConta: true } } },
+        orderBy: { id: "asc" },
+        skip,
+        take,
+      }),
+    paginacao,
+  )
 }
 
 export const buscarPorId = async (id: number) => {

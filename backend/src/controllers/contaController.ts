@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { asyncHandler } from "../utils/asyncHandler"
 import * as contaService from "../services/contaService"
 import { registrarLog } from "../services/logService"
+import { paginationQuerySchema } from "../schemas/common"
 
 export const criarConta = asyncHandler(async (req: Request, res: Response) => {
   const conta = await contaService.criar(req.body)
@@ -9,7 +10,7 @@ export const criarConta = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const listarContas = asyncHandler(async (req: Request, res: Response) => {
-  const contas = await contaService.listar()
+  const contas = await contaService.listar(paginationQuerySchema.parse(req.query))
   return res.json(contas)
 })
 

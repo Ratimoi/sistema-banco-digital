@@ -1,89 +1,74 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import {
   getClientes,
   createCliente,
   updateCliente,
   deleteCliente,
   enviarEmail,
+  ClienteInput,
 } from "../services/clienteService"
-import { Modal, Confirm, toast } from "../components/ui"
+import { Modal, Confirm, Pagination, toast } from "../components/ui"
+import { useCrudPage } from "../hooks/useCrudPage"
+import { Cliente } from "../types"
 
-const empty = { nome: "", cpf: "", email: "", senha: "", nivel: "0" }
+interface ClienteForm {
+  nome: string
+  cpf: string
+  email: string
+  senha: string
+  nivel: string
+}
+
+const empty: ClienteForm = { nome: "", cpf: "", email: "", senha: "", nivel: "0" }
+
+const buildPayload = (form: ClienteForm, editing: Cliente | null): ClienteInput => {
+  const base = { nome: form.nome, cpf: form.cpf, email: form.email, nivel: Number(form.nivel) }
+  // Senha em branco significa "não alterar" — o backend rejeita uma senha vazia
+  // (mínimo 8 caracteres fortes), então ela só é enviada se preenchida.
+  if (editing && !form.senha) return base
+  return { ...base, senha: form.senha }
+}
 
 export default function ClientesPage() {
-  const [clientes, setClientes] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modal, setModal] = useState(false)
-  const [editing, setEditing] = useState<any>(null)
-  const [form, setForm] = useState(empty)
-  const [saving, setSaving] = useState(false)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
-  const [deleting, setDeleting] = useState(false)
+  const {
+    dados: clientes,
+    total,
+    pagina,
+    totalPaginas,
+    loading,
+    modal,
+    setModal,
+    editing,
+    form,
+    saving,
+    confirmId,
+    setConfirmId,
+    deleting,
+    changePage,
+    openCreate,
+    openEdit,
+    handleSubmit,
+    handleDelete,
+    f,
+  } = useCrudPage<Cliente, ClienteForm, ClienteInput>({
+    fetchPage: getClientes,
+    create: createCliente,
+    update: updateCliente,
+    remove: deleteCliente,
+    emptyForm: empty,
+    toEditForm: (c) => ({ nome: c.nome, cpf: c.cpf, email: c.email, senha: "", nivel: String(c.nivel ?? 0) }),
+    buildPayload,
+    messages: {
+      created: "Cliente criado!",
+      updated: "Cliente atualizado!",
+      deleted: "Cliente deletado!",
+      loadError: "Erro ao carregar clientes",
+      saveError: "Erro ao salvar cliente",
+      deleteError: "Erro ao deletar cliente",
+    },
+  })
+
   const [emailLoading, setEmailLoading] = useState<number | null>(null)
-
-  const load = async () => {
-    try {
-      const res = await getClientes()
-      setClientes(res.data)
-    } catch {
-      toast.error("Erro ao carregar clientes")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  const openCreate = () => {
-    setEditing(null)
-    setForm(empty)
-    setModal(true)
-  }
-  const openEdit = (c: any) => {
-    setEditing(c)
-    setForm({ nome: c.nome, cpf: c.cpf, email: c.email, senha: "", nivel: String(c.nivel ?? 0) })
-    setModal(true)
-  }
-
-  const handleSubmit = async () => {
-    setSaving(true)
-    try {
-      const data = { ...form, nivel: Number(form.nivel) }
-      if (editing) {
-        // Senha em branco significa "não alterar" — o backend rejeita uma senha
-        // vazia (mínimo 8 caracteres fortes), então ela só é enviada se preenchida.
-        const { senha, ...rest } = data
-        await updateCliente(editing.id, senha ? data : rest)
-        toast.success("Cliente atualizado!")
-      } else {
-        await createCliente(data)
-        toast.success("Cliente criado!")
-      }
-      setModal(false)
-      load()
-    } catch {
-      toast.error("Erro ao salvar cliente")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!confirmId) return
-    setDeleting(true)
-    try {
-      await deleteCliente(confirmId)
-      toast.success("Cliente deletado!")
-      setConfirmId(null)
-      load()
-    } catch {
-      toast.error("Erro ao deletar cliente")
-    } finally {
-      setDeleting(false)
-    }
-  }
 
   const handleEmail = async (id: number) => {
     setEmailLoading(id)
@@ -97,14 +82,12 @@ export default function ClientesPage() {
     }
   }
 
-  const f = (k: string) => (e: any) => setForm((prev) => ({ ...prev, [k]: e.target.value }))
-
   return (
     <>
       <div className="page-header">
         <div>
           <div className="page-title">Clientes</div>
-          <div className="page-subtitle">{clientes.length} registros</div>
+          <div className="page-subtitle">{total} registros</div>
         </div>
         <button className="btn btn-primary" onClick={openCreate}>
           + Novo Cliente
@@ -184,6 +167,7 @@ export default function ClientesPage() {
               </table>
             )}
           </div>
+          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} onChange={changePage} />
         </div>
       </div>
 

@@ -1,16 +1,25 @@
 import { prisma } from "../lib/prisma"
 import { AppError } from "../utils/AppError"
 import { CreateEmprestimoInput, UpdateEmprestimoInput } from "../schemas/emprestimoSchema"
+import { PaginationQuery } from "../schemas/common"
+import { paginar } from "../utils/paginate"
 
 export const criar = (data: CreateEmprestimoInput) => {
   return prisma.emprestimo.create({ data })
 }
 
-export const listar = () => {
-  return prisma.emprestimo.findMany({
-    include: { cliente: { select: { id: true, nome: true } } },
-    orderBy: { id: "asc" },
-  })
+export const listar = (paginacao: PaginationQuery) => {
+  return paginar(
+    () => prisma.emprestimo.count(),
+    (skip, take) =>
+      prisma.emprestimo.findMany({
+        include: { cliente: { select: { id: true, nome: true } } },
+        orderBy: { id: "asc" },
+        skip,
+        take,
+      }),
+    paginacao,
+  )
 }
 
 export const buscarPorId = async (id: number) => {

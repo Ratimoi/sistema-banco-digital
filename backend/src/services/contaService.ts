@@ -2,17 +2,28 @@ import { prisma } from "../lib/prisma"
 import { AppError } from "../utils/AppError"
 import { cartaoSelect } from "./cartaoService"
 import { CreateContaInput, UpdateContaInput } from "../schemas/contaSchema"
+import { PaginationQuery } from "../schemas/common"
+import { paginar } from "../utils/paginate"
 
 export const criar = (data: CreateContaInput) => {
   return prisma.conta.create({ data })
 }
 
-export const listar = () => {
-  return prisma.conta.findMany({
-    include: { cliente: { select: { id: true, nome: true } } },
-    orderBy: { id: "asc" },
-  })
+export const listar = (paginacao: PaginationQuery) => {
+  return paginar(
+    () => prisma.conta.count(),
+    (skip, take) =>
+      prisma.conta.findMany({
+        include: { cliente: { select: { id: true, nome: true } } },
+        orderBy: { id: "asc" },
+        skip,
+        take,
+      }),
+    paginacao,
+  )
 }
+
+const ULTIMAS_TRANSACOES = { orderBy: { createdAt: "desc" as const }, take: 50 }
 
 export const buscarPorId = async (id: number) => {
   const conta = await prisma.conta.findUnique({
@@ -20,8 +31,8 @@ export const buscarPorId = async (id: number) => {
     include: {
       cliente: { select: { id: true, nome: true } },
       cartoes: { select: cartaoSelect },
-      transacoesEnviadas: true,
-      transacoesRecebidas: true,
+      transacoesEnviadas: ULTIMAS_TRANSACOES,
+      transacoesRecebidas: ULTIMAS_TRANSACOES,
     },
   })
   if (!conta) throw new AppError("Conta não encontrada", 404)
@@ -31,7 +42,7 @@ export const buscarPorId = async (id: number) => {
 export const listarPorCliente = (clienteId: number) => {
   return prisma.conta.findMany({
     where: { clienteId },
-    include: { transacoesEnviadas: true, transacoesRecebidas: true },
+    include: { transacoesEnviadas: ULTIMAS_TRANSACOES, transacoesRecebidas: ULTIMAS_TRANSACOES },
     orderBy: { id: "asc" },
   })
 }

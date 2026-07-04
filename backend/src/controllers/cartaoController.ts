@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { asyncHandler } from "../utils/asyncHandler"
 import * as cartaoService from "../services/cartaoService"
+import { paginationQuerySchema } from "../schemas/common"
 
 export const criarCartao = asyncHandler(async (req: Request, res: Response) => {
   const cartao = await cartaoService.criar(req.body)
@@ -8,7 +9,7 @@ export const criarCartao = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const listarCartoes = asyncHandler(async (req: Request, res: Response) => {
-  const cartoes = await cartaoService.listar()
+  const cartoes = await cartaoService.listar(paginationQuerySchema.parse(req.query))
   return res.json(cartoes)
 })
 
