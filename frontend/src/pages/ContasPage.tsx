@@ -21,13 +21,22 @@ export default function ContasPage() {
       const [c, cl] = await Promise.all([getContas(), getClientes()])
       setContas(c.data)
       setClientes(cl.data)
-    } catch { toast.error("Erro ao carregar dados") }
-    finally { setLoading(false) }
+    } catch {
+      toast.error("Erro ao carregar dados")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+  }, [])
 
-  const openCreate = () => { setEditing(null); setForm(empty); setModal(true) }
+  const openCreate = () => {
+    setEditing(null)
+    setForm(empty)
+    setModal(true)
+  }
   const openEdit = (c: any) => {
     setEditing(c)
     setForm({ numeroConta: c.numeroConta, tipo: c.tipo, saldo: c.saldo, clienteId: c.clienteId })
@@ -45,9 +54,13 @@ export default function ContasPage() {
         await createConta(data)
         toast.success("Conta criada!")
       }
-      setModal(false); load()
-    } catch { toast.error("Erro ao salvar conta") }
-    finally { setSaving(false) }
+      setModal(false)
+      load()
+    } catch {
+      toast.error("Erro ao salvar conta")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDelete = async () => {
@@ -56,9 +69,13 @@ export default function ContasPage() {
     try {
       await deleteConta(confirmId)
       toast.success("Conta deletada!")
-      setConfirmId(null); load()
-    } catch { toast.error("Erro ao deletar conta") }
-    finally { setDeleting(false) }
+      setConfirmId(null)
+      load()
+    } catch {
+      toast.error("Erro ao deletar conta")
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const f = (k: string) => (e: any) => setForm((prev: any) => ({ ...prev, [k]: e.target.value }))
@@ -70,7 +87,9 @@ export default function ContasPage() {
           <div className="page-title">Contas</div>
           <div className="page-subtitle">{contas.length} registros</div>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>+ Nova Conta</button>
+        <button className="btn btn-primary" onClick={openCreate}>
+          + Nova Conta
+        </button>
       </div>
 
       <div className="page-content">
@@ -79,7 +98,10 @@ export default function ContasPage() {
             {loading ? (
               <div className="loading">Carregando...</div>
             ) : contas.length === 0 ? (
-              <div className="empty"><div className="empty-icon">🏦</div><div className="empty-text">Nenhuma conta cadastrada</div></div>
+              <div className="empty">
+                <div className="empty-icon">🏦</div>
+                <div className="empty-text">Nenhuma conta cadastrada</div>
+              </div>
             ) : (
               <table>
                 <thead>
@@ -93,19 +115,31 @@ export default function ContasPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {contas.map(c => (
+                  {contas.map((c) => (
                     <tr key={c.id}>
-                      <td className="mono" style={{ color: "var(--text3)" }}>{c.id}</td>
-                      <td className="mono" style={{ fontWeight: 500 }}>{c.numeroConta}</td>
-                      <td><span className={`badge ${c.tipo === "corrente" ? "badge-blue" : "badge-yellow"}`}>{c.tipo}</span></td>
+                      <td className="mono" style={{ color: "var(--text3)" }}>
+                        {c.id}
+                      </td>
+                      <td className="mono" style={{ fontWeight: 500 }}>
+                        {c.numeroConta}
+                      </td>
+                      <td>
+                        <span className={`badge ${c.tipo === "corrente" ? "badge-blue" : "badge-yellow"}`}>
+                          {c.tipo}
+                        </span>
+                      </td>
                       <td className="mono" style={{ color: c.saldo >= 0 ? "var(--accent)" : "var(--red)" }}>
                         R$ {Number(c.saldo).toFixed(2)}
                       </td>
                       <td>{c.cliente?.nome ?? `#${c.clienteId}`}</td>
                       <td>
                         <div className="actions">
-                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)}>Editar</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmId(c.id)}>Deletar</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)}>
+                            Editar
+                          </button>
+                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmId(c.id)}>
+                            Deletar
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -123,7 +157,9 @@ export default function ContasPage() {
           onClose={() => setModal(false)}
           footer={
             <>
-              <button className="btn btn-ghost" onClick={() => setModal(false)} disabled={saving}>Cancelar</button>
+              <button className="btn btn-ghost" onClick={() => setModal(false)} disabled={saving}>
+                Cancelar
+              </button>
               <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
                 {saving ? "Salvando..." : "Salvar"}
               </button>
@@ -150,7 +186,11 @@ export default function ContasPage() {
               <label>Cliente</label>
               <select value={form.clienteId} onChange={f("clienteId")}>
                 <option value="">Selecione...</option>
-                {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                {clientes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -159,7 +199,11 @@ export default function ContasPage() {
 
       {confirmId && (
         <Confirm
-          message={<>Deseja deletar esta conta? <strong>Todos os dados relacionados serão removidos.</strong></>}
+          message={
+            <>
+              Deseja deletar esta conta? <strong>Todos os dados relacionados serão removidos.</strong>
+            </>
+          }
           onConfirm={handleDelete}
           onClose={() => setConfirmId(null)}
           loading={deleting}

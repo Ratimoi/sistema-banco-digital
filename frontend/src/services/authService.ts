@@ -2,8 +2,7 @@ import api from "./api"
 
 const TOKEN_KEY = "banco_token"
 
-export const login = (email: string, senha: string) =>
-  api.post("/auth/login", { email, senha })
+export const login = (email: string, senha: string) => api.post("/auth/login", { email, senha })
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
 

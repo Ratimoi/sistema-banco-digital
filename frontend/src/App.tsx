@@ -38,7 +38,7 @@ function AdminLayout() {
           <h1>BANCO</h1>
           <span>Sistema de Gestão</span>
         </div>
-        {navItems.map(item => (
+        {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -49,7 +49,11 @@ function AdminLayout() {
             {item.label}
           </NavLink>
         ))}
-        <button className="nav-item" onClick={handleLogout} style={{ marginTop: "auto", border: "none", background: "none", width: "100%", textAlign: "left" }}>
+        <button
+          className="nav-item"
+          onClick={handleLogout}
+          style={{ marginTop: "auto", border: "none", background: "none", width: "100%", textAlign: "left" }}
+        >
           <span className="nav-icon">⏻</span>
           Sair
         </button>

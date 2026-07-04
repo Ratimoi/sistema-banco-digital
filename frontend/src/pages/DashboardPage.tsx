@@ -13,12 +13,26 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [cl, co, tr, em] = await Promise.all([getClientes(), getContas(), getTransacoes(), getEmprestimos()])
+        const [cl, co, tr, em] = await Promise.all([
+          getClientes(),
+          getContas(),
+          getTransacoes(),
+          getEmprestimos(),
+        ])
         const saldoTotal = co.data.reduce((acc: number, c: any) => acc + Number(c.saldo), 0)
-        setStats({ clientes: cl.data.length, contas: co.data.length, transacoes: tr.data.length, emprestimos: em.data.length, saldoTotal })
+        setStats({
+          clientes: cl.data.length,
+          contas: co.data.length,
+          transacoes: tr.data.length,
+          emprestimos: em.data.length,
+          saldoTotal,
+        })
         setUltimas(tr.data.slice(-5).reverse())
-      } catch { toast.error("Erro ao carregar dashboard") }
-      finally { setLoading(false) }
+      } catch {
+        toast.error("Erro ao carregar dashboard")
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
@@ -69,18 +83,32 @@ export default function DashboardPage() {
               </div>
               <div className="table-wrap">
                 {ultimas.length === 0 ? (
-                  <div className="empty"><div className="empty-text">Nenhuma transação ainda</div></div>
+                  <div className="empty">
+                    <div className="empty-text">Nenhuma transação ainda</div>
+                  </div>
                 ) : (
                   <table>
                     <thead>
-                      <tr><th>#</th><th>Tipo</th><th>Valor</th><th>Descrição</th><th>Data</th></tr>
+                      <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Valor</th>
+                        <th>Descrição</th>
+                        <th>Data</th>
+                      </tr>
                     </thead>
                     <tbody>
-                      {ultimas.map(t => (
+                      {ultimas.map((t) => (
                         <tr key={t.id}>
-                          <td className="mono" style={{ color: "var(--text3)" }}>{t.id}</td>
-                          <td><span className={`badge ${tipoBadge(t.tipo)}`}>{t.tipo}</span></td>
-                          <td className="mono" style={{ color: "var(--accent)" }}>R$ {Number(t.valor).toFixed(2)}</td>
+                          <td className="mono" style={{ color: "var(--text3)" }}>
+                            {t.id}
+                          </td>
+                          <td>
+                            <span className={`badge ${tipoBadge(t.tipo)}`}>{t.tipo}</span>
+                          </td>
+                          <td className="mono" style={{ color: "var(--accent)" }}>
+                            R$ {Number(t.valor).toFixed(2)}
+                          </td>
                           <td style={{ color: "var(--text2)" }}>{t.descricao ?? "—"}</td>
                           <td className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
                             {new Date(t.createdAt).toLocaleString("pt-BR")}

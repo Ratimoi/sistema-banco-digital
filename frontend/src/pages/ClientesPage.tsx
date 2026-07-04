@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react"
-import { getClientes, createCliente, updateCliente, deleteCliente, enviarEmail } from "../services/clienteService"
+import {
+  getClientes,
+  createCliente,
+  updateCliente,
+  deleteCliente,
+  enviarEmail,
+} from "../services/clienteService"
 import { Modal, Confirm, toast } from "../components/ui"
 
 const empty = { nome: "", cpf: "", email: "", senha: "" }
@@ -19,14 +25,27 @@ export default function ClientesPage() {
     try {
       const res = await getClientes()
       setClientes(res.data)
-    } catch { toast.error("Erro ao carregar clientes") }
-    finally { setLoading(false) }
+    } catch {
+      toast.error("Erro ao carregar clientes")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+  }, [])
 
-  const openCreate = () => { setEditing(null); setForm(empty); setModal(true) }
-  const openEdit = (c: any) => { setEditing(c); setForm({ nome: c.nome, cpf: c.cpf, email: c.email, senha: "" }); setModal(true) }
+  const openCreate = () => {
+    setEditing(null)
+    setForm(empty)
+    setModal(true)
+  }
+  const openEdit = (c: any) => {
+    setEditing(c)
+    setForm({ nome: c.nome, cpf: c.cpf, email: c.email, senha: "" })
+    setModal(true)
+  }
 
   const handleSubmit = async () => {
     setSaving(true)
@@ -40,8 +59,11 @@ export default function ClientesPage() {
       }
       setModal(false)
       load()
-    } catch { toast.error("Erro ao salvar cliente") }
-    finally { setSaving(false) }
+    } catch {
+      toast.error("Erro ao salvar cliente")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleDelete = async () => {
@@ -52,8 +74,11 @@ export default function ClientesPage() {
       toast.success("Cliente deletado!")
       setConfirmId(null)
       load()
-    } catch { toast.error("Erro ao deletar cliente") }
-    finally { setDeleting(false) }
+    } catch {
+      toast.error("Erro ao deletar cliente")
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const handleEmail = async (id: number) => {
@@ -61,11 +86,14 @@ export default function ClientesPage() {
     try {
       await enviarEmail(id)
       toast.success("E-mail enviado!")
-    } catch { toast.error("Erro ao enviar e-mail") }
-    finally { setEmailLoading(null) }
+    } catch {
+      toast.error("Erro ao enviar e-mail")
+    } finally {
+      setEmailLoading(null)
+    }
   }
 
-  const f = (k: string) => (e: any) => setForm(prev => ({ ...prev, [k]: e.target.value }))
+  const f = (k: string) => (e: any) => setForm((prev) => ({ ...prev, [k]: e.target.value }))
 
   return (
     <>
@@ -74,7 +102,9 @@ export default function ClientesPage() {
           <div className="page-title">Clientes</div>
           <div className="page-subtitle">{clientes.length} registros</div>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>+ Novo Cliente</button>
+        <button className="btn btn-primary" onClick={openCreate}>
+          + Novo Cliente
+        </button>
       </div>
 
       <div className="page-content">
@@ -83,7 +113,10 @@ export default function ClientesPage() {
             {loading ? (
               <div className="loading">Carregando...</div>
             ) : clientes.length === 0 ? (
-              <div className="empty"><div className="empty-icon">👤</div><div className="empty-text">Nenhum cliente cadastrado</div></div>
+              <div className="empty">
+                <div className="empty-icon">👤</div>
+                <div className="empty-text">Nenhum cliente cadastrado</div>
+              </div>
             ) : (
               <table>
                 <thead>
@@ -98,19 +131,25 @@ export default function ClientesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {clientes.map(c => (
+                  {clientes.map((c) => (
                     <tr key={c.id}>
-                      <td className="mono" style={{ color: "var(--text3)" }}>{c.id}</td>
+                      <td className="mono" style={{ color: "var(--text3)" }}>
+                        {c.id}
+                      </td>
                       <td style={{ fontWeight: 500 }}>{c.nome}</td>
                       <td className="mono">{c.cpf}</td>
                       <td className="mono">{c.email}</td>
-                      <td><span className="badge badge-blue">{c.contas?.length ?? 0}</span></td>
+                      <td>
+                        <span className="badge badge-blue">{c.contas?.length ?? 0}</span>
+                      </td>
                       <td className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
                         {new Date(c.createdAt).toLocaleDateString("pt-BR")}
                       </td>
                       <td>
                         <div className="actions">
-                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)}>Editar</button>
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(c)}>
+                            Editar
+                          </button>
                           <button
                             className="btn btn-ghost btn-sm"
                             onClick={() => handleEmail(c.id)}
@@ -118,7 +157,9 @@ export default function ClientesPage() {
                           >
                             {emailLoading === c.id ? "..." : "✉"}
                           </button>
-                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmId(c.id)}>Deletar</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => setConfirmId(c.id)}>
+                            Deletar
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -136,7 +177,9 @@ export default function ClientesPage() {
           onClose={() => setModal(false)}
           footer={
             <>
-              <button className="btn btn-ghost" onClick={() => setModal(false)} disabled={saving}>Cancelar</button>
+              <button className="btn btn-ghost" onClick={() => setModal(false)} disabled={saving}>
+                Cancelar
+              </button>
               <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
                 {saving ? "Salvando..." : "Salvar"}
               </button>
@@ -166,7 +209,11 @@ export default function ClientesPage() {
 
       {confirmId && (
         <Confirm
-          message={<>Tem certeza que deseja deletar este cliente? <strong>Esta ação não pode ser desfeita.</strong></>}
+          message={
+            <>
+              Tem certeza que deseja deletar este cliente? <strong>Esta ação não pode ser desfeita.</strong>
+            </>
+          }
           onConfirm={handleDelete}
           onClose={() => setConfirmId(null)}
           loading={deleting}
