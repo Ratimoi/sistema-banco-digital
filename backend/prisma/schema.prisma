@@ -43,8 +43,15 @@ model Cliente {
   senha      String
   createdAt  DateTime @default(now())
 
-  contas      Conta[]
+  tentativasFalhas Int       @default(0)
+  bloqueadoAte     DateTime?
+  ultimoLogin      DateTime?
+  resetToken       String?
+  resetTokenExpiry DateTime?
+
+  conta       Conta?
   emprestimos Emprestimo[]
+  posts       Post[]
 }
 
 model Conta {
@@ -53,7 +60,7 @@ model Conta {
   saldo        Decimal  @default(0) @db.Decimal(15, 2)
   tipo         String
 
-  clienteId    Int
+  clienteId    Int      @unique
   cliente      Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   cartoes      Cartao[]
@@ -79,9 +86,19 @@ model Cartao {
   validade  String
   cvv       String
   tipo      String
+  limite    Decimal @db.Decimal(15, 2)
 
   contaId   Int
   conta     Conta   @relation(fields: [contaId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  conteudo  String
+  createdAt DateTime @default(now())
+
+  clienteId Int
+  cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 }
 
 model Transacao {

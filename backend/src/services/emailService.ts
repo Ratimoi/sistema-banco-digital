@@ -35,7 +35,7 @@ export const enviarEmailRelatorio = async (clienteId: number) => {
   const cliente = await prisma.cliente.findUnique({
     where: { id: clienteId },
     include: {
-      contas: {
+      conta: {
         include: {
           transacoesEnviadas: true,
           transacoesRecebidas: true,
@@ -48,10 +48,9 @@ export const enviarEmailRelatorio = async (clienteId: number) => {
     throw new AppError("Cliente não encontrado", 404)
   }
 
-  const transacoes = cliente.contas.flatMap((conta) => [
-    ...conta.transacoesEnviadas,
-    ...conta.transacoesRecebidas,
-  ])
+  const transacoes = cliente.conta
+    ? [...cliente.conta.transacoesEnviadas, ...cliente.conta.transacoesRecebidas]
+    : []
 
   const relatorio =
     transacoes.length > 0

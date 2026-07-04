@@ -3,7 +3,7 @@ import { getCartoes, createCartao, updateCartao, deleteCartao } from "../service
 import { getContas } from "../services/contaService"
 import { Modal, Confirm, toast } from "../components/ui"
 
-const empty = { numero: "", validade: "", cvv: "", tipo: "credito", contaId: "" }
+const empty = { numero: "", validade: "", cvv: "", tipo: "credito", limite: "", contaId: "" }
 
 export default function CartoesPage() {
   const [cartoes, setCartoes] = useState<any[]>([])
@@ -39,14 +39,21 @@ export default function CartoesPage() {
   }
   const openEdit = (c: any) => {
     setEditing(c)
-    setForm({ numero: c.numero, validade: c.validade, cvv: c.cvv, tipo: c.tipo, contaId: c.contaId })
+    setForm({
+      numero: c.numero,
+      validade: c.validade,
+      cvv: c.cvv,
+      tipo: c.tipo,
+      limite: c.limite,
+      contaId: c.contaId,
+    })
     setModal(true)
   }
 
   const handleSubmit = async () => {
     setSaving(true)
     try {
-      const data = { ...form, contaId: Number(form.contaId) }
+      const data = { ...form, limite: Number(form.limite), contaId: Number(form.contaId) }
       if (editing) {
         await updateCartao(editing.id, data)
         toast.success("Cartão atualizado!")
@@ -112,6 +119,7 @@ export default function CartoesPage() {
                     <th>Número</th>
                     <th>Tipo</th>
                     <th>Validade</th>
+                    <th>Limite</th>
                     <th>Conta</th>
                     <th>Ações</th>
                   </tr>
@@ -129,6 +137,9 @@ export default function CartoesPage() {
                         </span>
                       </td>
                       <td className="mono">{c.validade}</td>
+                      <td className="mono" style={{ color: "var(--accent)" }}>
+                        R$ {Number(c.limite).toFixed(2)}
+                      </td>
                       <td className="mono">{c.conta?.numeroConta ?? `#${c.contaId}`}</td>
                       <td>
                         <div className="actions">
@@ -183,6 +194,10 @@ export default function CartoesPage() {
                 <option value="credito">Crédito</option>
                 <option value="debito">Débito</option>
               </select>
+            </div>
+            <div className="field">
+              <label>Limite (R$)</label>
+              <input type="number" value={form.limite} onChange={f("limite")} placeholder="1000.00" />
             </div>
             <div className="field">
               <label>Conta</label>

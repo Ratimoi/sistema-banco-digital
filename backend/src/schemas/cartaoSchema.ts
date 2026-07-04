@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { positiveMoney } from "./common"
 
 export const createCartaoSchema = z.object({
   numero: z
@@ -14,6 +15,7 @@ export const createCartaoSchema = z.object({
     .trim()
     .regex(/^\d{3,4}$/, "CVV deve ter 3 ou 4 dígitos"),
   tipo: z.enum(["credito", "debito"]),
+  limite: positiveMoney,
   contaId: z.coerce.number().int().positive(),
 })
 
