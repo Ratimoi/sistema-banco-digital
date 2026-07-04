@@ -1,100 +1,92 @@
 import { useState, useEffect } from "react"
-import { getCartoes, createCartao, updateCartao, deleteCartao } from "../services/cartaoService"
+import { getCartoes, createCartao, updateCartao, deleteCartao, CartaoInput } from "../services/cartaoService"
 import { getContas } from "../services/contaService"
-import { Modal, Confirm, toast } from "../components/ui"
+import { Modal, Confirm, Pagination, toast } from "../components/ui"
+import { useCrudPage } from "../hooks/useCrudPage"
+import { Cartao, Conta } from "../types"
 
-const empty = { numero: "", validade: "", cvv: "", tipo: "credito", limite: "", contaId: "" }
+interface CartaoForm {
+  numero: string
+  validade: string
+  cvv: string
+  tipo: string
+  limite: string
+  contaId: string
+}
+
+const empty: CartaoForm = { numero: "", validade: "", cvv: "", tipo: "credito", limite: "", contaId: "" }
+
+const buildPayload = (form: CartaoForm): CartaoInput => ({
+  numero: form.numero,
+  validade: form.validade,
+  cvv: form.cvv,
+  tipo: form.tipo,
+  limite: Number(form.limite),
+  contaId: Number(form.contaId),
+})
+
+const maskCard = (n: string) => n.replace(/\d(?=\d{4})/g, "•")
 
 export default function CartoesPage() {
-  const [cartoes, setCartoes] = useState<any[]>([])
-  const [contas, setContas] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modal, setModal] = useState(false)
-  const [editing, setEditing] = useState<any>(null)
-  const [form, setForm] = useState<any>(empty)
-  const [saving, setSaving] = useState(false)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
-  const [deleting, setDeleting] = useState(false)
-
-  const load = async () => {
-    try {
-      const [ca, co] = await Promise.all([getCartoes(), getContas()])
-      setCartoes(ca.data)
-      setContas(co.data)
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  const openCreate = () => {
-    setEditing(null)
-    setForm(empty)
-    setModal(true)
-  }
-  const openEdit = (c: any) => {
-    setEditing(c)
-    setForm({
+  const {
+    dados: cartoes,
+    total,
+    pagina,
+    totalPaginas,
+    loading,
+    modal,
+    setModal,
+    editing,
+    form,
+    saving,
+    confirmId,
+    setConfirmId,
+    deleting,
+    changePage,
+    openCreate,
+    openEdit,
+    handleSubmit,
+    handleDelete,
+    f,
+  } = useCrudPage<Cartao, CartaoForm, CartaoInput>({
+    fetchPage: getCartoes,
+    create: createCartao,
+    update: updateCartao,
+    remove: deleteCartao,
+    emptyForm: empty,
+    toEditForm: (c) => ({
       numero: c.numero,
       validade: c.validade,
-      cvv: c.cvv,
+      cvv: c.cvv ?? "",
       tipo: c.tipo,
       limite: c.limite,
-      contaId: c.contaId,
-    })
-    setModal(true)
-  }
+      contaId: String(c.contaId),
+    }),
+    buildPayload,
+    messages: {
+      created: "Cartão criado!",
+      updated: "Cartão atualizado!",
+      deleted: "Cartão deletado!",
+      loadError: "Erro ao carregar dados",
+      saveError: "Erro ao salvar cartão",
+      deleteError: "Erro ao deletar cartão",
+    },
+  })
 
-  const handleSubmit = async () => {
-    setSaving(true)
-    try {
-      const data = { ...form, limite: Number(form.limite), contaId: Number(form.contaId) }
-      if (editing) {
-        await updateCartao(editing.id, data)
-        toast.success("Cartão atualizado!")
-      } else {
-        await createCartao(data)
-        toast.success("Cartão criado!")
-      }
-      setModal(false)
-      load()
-    } catch {
-      toast.error("Erro ao salvar cartão")
-    } finally {
-      setSaving(false)
-    }
-  }
+  const [contas, setContas] = useState<Conta[]>([])
 
-  const handleDelete = async () => {
-    if (!confirmId) return
-    setDeleting(true)
-    try {
-      await deleteCartao(confirmId)
-      toast.success("Cartão deletado!")
-      setConfirmId(null)
-      load()
-    } catch {
-      toast.error("Erro ao deletar cartão")
-    } finally {
-      setDeleting(false)
-    }
-  }
-
-  const f = (k: string) => (e: any) => setForm((prev: any) => ({ ...prev, [k]: e.target.value }))
-
-  const maskCard = (n: string) => n.replace(/\d(?=\d{4})/g, "•")
+  useEffect(() => {
+    getContas(1, 100)
+      .then((res) => setContas(res.data.dados))
+      .catch(() => toast.error("Erro ao carregar contas"))
+  }, [])
 
   return (
     <>
       <div className="page-header">
         <div>
           <div className="page-title">Cartões</div>
-          <div className="page-subtitle">{cartoes.length} registros</div>
+          <div className="page-subtitle">{total} registros</div>
         </div>
         <button className="btn btn-primary" onClick={openCreate}>
           + Novo Cartão
@@ -157,6 +149,7 @@ export default function CartoesPage() {
               </table>
             )}
           </div>
+          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} onChange={changePage} />
         </div>
       </div>
 

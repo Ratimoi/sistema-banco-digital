@@ -1,33 +1,26 @@
 import { useState, useEffect } from "react"
-import { getClientes } from "../services/clienteService"
-import { getContas } from "../services/contaService"
-import { getTransacoes } from "../services/transacaoService"
-import { getEmprestimos } from "../services/emprestimoService"
+import { getDashboardStats } from "../services/dashboardService"
 import { toast } from "../components/ui"
+import { DashboardStats } from "../types"
+
+const empty: DashboardStats = {
+  clientes: 0,
+  contas: 0,
+  transacoes: 0,
+  emprestimos: 0,
+  saldoTotal: "0",
+  ultimasTransacoes: [],
+}
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState({ clientes: 0, contas: 0, transacoes: 0, emprestimos: 0, saldoTotal: 0 })
-  const [ultimas, setUltimas] = useState<any[]>([])
+  const [stats, setStats] = useState<DashboardStats>(empty)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [cl, co, tr, em] = await Promise.all([
-          getClientes(),
-          getContas(),
-          getTransacoes(),
-          getEmprestimos(),
-        ])
-        const saldoTotal = co.data.reduce((acc: number, c: any) => acc + Number(c.saldo), 0)
-        setStats({
-          clientes: cl.data.length,
-          contas: co.data.length,
-          transacoes: tr.data.length,
-          emprestimos: em.data.length,
-          saldoTotal,
-        })
-        setUltimas(tr.data.slice(-5).reverse())
+        const res = await getDashboardStats()
+        setStats(res.data)
       } catch {
         toast.error("Erro ao carregar dashboard")
       } finally {
@@ -38,7 +31,7 @@ export default function DashboardPage() {
   }, [])
 
   const tipoBadge = (tipo: string) => {
-    const map: any = { DEPOSITO: "badge-green", SAQUE: "badge-red", TRANSFERENCIA: "badge-blue" }
+    const map: Record<string, string> = { DEPOSITO: "badge-green", SAQUE: "badge-red", TRANSFERENCIA: "badge-blue" }
     return map[tipo] ?? "badge-yellow"
   }
 
@@ -68,7 +61,7 @@ export default function DashboardPage() {
               <div className="stat-card">
                 <div className="stat-label">Saldo Total</div>
                 <div className="stat-value stat-green" style={{ fontSize: 20 }}>
-                  R$ {stats.saldoTotal.toFixed(2)}
+                  R$ {Number(stats.saldoTotal).toFixed(2)}
                 </div>
               </div>
               <div className="stat-card">
@@ -82,7 +75,7 @@ export default function DashboardPage() {
                 <span className="card-title">Últimas Transações</span>
               </div>
               <div className="table-wrap">
-                {ultimas.length === 0 ? (
+                {stats.ultimasTransacoes.length === 0 ? (
                   <div className="empty">
                     <div className="empty-text">Nenhuma transação ainda</div>
                   </div>
@@ -98,7 +91,7 @@ export default function DashboardPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {ultimas.map((t) => (
+                      {stats.ultimasTransacoes.map((t) => (
                         <tr key={t.id}>
                           <td className="mono" style={{ color: "var(--text3)" }}>
                             {t.id}

@@ -431,6 +431,19 @@ http://localhost:5173
 Todos os endpoints abaixo, exceto os de `/api/auth`, exigem o header
 `Authorization: Bearer <token>` obtido no login.
 
+As listagens de clientes, contas, cartões, empréstimos e transações aceitam `?page=` e `?limit=`
+(padrão 1 e 20, máximo 100) e devolvem `{ dados, total, pagina, totalPaginas }` em vez de um array
+sem limite.
+
+## Dashboard
+
+| Método | Endpoint             |
+| ------ | --------------------- |
+| GET    | /api/dashboard/stats |
+
+Retorna contagens agregadas (clientes, contas, transações, empréstimos, saldo total) e as 5
+transações mais recentes, sem precisar carregar as tabelas inteiras no cliente.
+
 ## Autenticação
 
 | Método | Endpoint                  |

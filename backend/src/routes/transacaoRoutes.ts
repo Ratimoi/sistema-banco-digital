@@ -8,7 +8,7 @@ import {
   transferencia,
 } from "../controllers/transacaoController"
 import { validate } from "../middlewares/validate"
-import { idParamSchema } from "../schemas/common"
+import { idParamSchema, paginationQuerySchema } from "../schemas/common"
 import { depositoSchema, saqueSchema, transferenciaSchema } from "../schemas/transacaoSchema"
 
 const router = Router()
@@ -20,7 +20,7 @@ const movimentacaoLimiter = rateLimit({ windowMs: 60 * 1000, limit: 30 })
 router.post("/deposito", movimentacaoLimiter, validate(depositoSchema), deposito)
 router.post("/saque", movimentacaoLimiter, validate(saqueSchema), saque)
 router.post("/transferencia", movimentacaoLimiter, validate(transferenciaSchema), transferencia)
-router.get("/", listarTransacoes)
+router.get("/", validate(paginationQuerySchema, "query"), listarTransacoes)
 router.get("/:id", validate(idParamSchema, "params"), buscarTransacao)
 
 export default router

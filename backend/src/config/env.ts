@@ -10,6 +10,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default("8h"),
   EMAIL_USER: z.string().optional(),
   EMAIL_PASS: z.string().optional(),
+  CORS_ORIGINS: z.string().optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)

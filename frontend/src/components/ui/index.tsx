@@ -68,6 +68,42 @@ export function Modal({ title, onClose, children, footer }: ModalProps) {
   )
 }
 
+// ─── Pagination ───────────────────────────────────────────────────
+interface PaginationProps {
+  pagina: number
+  totalPaginas: number
+  total: number
+  onChange: (pagina: number) => void
+}
+
+export function Pagination({ pagina, totalPaginas, total, onChange }: PaginationProps) {
+  if (totalPaginas <= 1) return null
+
+  return (
+    <div className="pagination">
+      <span className="pagination-info">
+        Página {pagina} de {totalPaginas} · {total} registros
+      </span>
+      <div className="pagination-actions">
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={() => onChange(pagina - 1)}
+          disabled={pagina <= 1}
+        >
+          ← Anterior
+        </button>
+        <button
+          className="btn btn-ghost btn-sm"
+          onClick={() => onChange(pagina + 1)}
+          disabled={pagina >= totalPaginas}
+        >
+          Próxima →
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Confirm Dialog ───────────────────────────────────────────────
 interface ConfirmProps {
   message: React.ReactNode

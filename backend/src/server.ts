@@ -12,12 +12,16 @@ import { errorHandler } from "./middlewares/errorHandler"
 
 const app = express()
 
-const allowedOrigins = [
+const defaultOrigins = [
   "http://localhost",
   "http://localhost:5173",
   "https://sistema-banco-digital-1.onrender.com",
   "https://sistema-banco-digital.onrender.com",
 ]
+
+const allowedOrigins = env.CORS_ORIGINS
+  ? env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
+  : defaultOrigins
 
 app.use(helmet())
 app.use(

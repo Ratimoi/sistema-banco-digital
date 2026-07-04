@@ -30,8 +30,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   comunidade entre clientes.
 - Ações de aprovar/rejeitar empréstimo na tela de Empréstimos do painel (nível 2+).
 - Página inicial (`/`) com acesso único de entrada para clientes e equipe.
+- Paginação (`page`/`limit`) em `GET /api/clientes`, `/api/contas`, `/api/cartoes`,
+  `/api/emprestimos` e `/api/transacoes` — cada um passa a devolver
+  `{ dados, total, pagina, totalPaginas }` em vez de um array sem limite. Telas do painel ganham
+  controles de página.
+- Endpoint `GET /api/dashboard/stats` com contagens/soma agregados via Prisma em vez do Dashboard
+  buscar todas as tabelas inteiras só para exibir números.
+- Variável de ambiente `CORS_ORIGINS` (opcional) para configurar as origens permitidas sem
+  precisar alterar código.
 
 ### Changed
+- Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de
+  `any` nas telas do painel; hook `useCrudPage` compartilhado entre Clientes/Contas/Cartões/
+  Empréstimos para reduzir a duplicação de load/criar/editar/deletar.
 - **Unificação de contas**: o model `Usuario` foi removido. Toda conta agora é um `Cliente`, que
   ganhou um campo `nivel` (0 = cliente comum, 1-3 = equipe — a "credencial especial"). Existe um
   único login (`/api/auth/login`); após autenticar, contas com `nivel > 0` acessam o painel

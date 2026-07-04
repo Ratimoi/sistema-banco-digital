@@ -1,9 +1,10 @@
 import { Request, Response } from "express"
 import { asyncHandler } from "../utils/asyncHandler"
 import * as transacaoService from "../services/transacaoService"
+import { paginationQuerySchema } from "../schemas/common"
 
 export const listarTransacoes = asyncHandler(async (req: Request, res: Response) => {
-  const transacoes = await transacaoService.listar()
+  const transacoes = await transacaoService.listar(paginationQuerySchema.parse(req.query))
   return res.json(transacoes)
 })
 

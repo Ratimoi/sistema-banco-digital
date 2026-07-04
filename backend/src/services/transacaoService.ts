@@ -2,18 +2,28 @@ import { Prisma } from "../../generated/prisma"
 import { prisma } from "../lib/prisma"
 import { AppError } from "../utils/AppError"
 import { DepositoInput, SaqueInput, TransferenciaInput } from "../schemas/transacaoSchema"
+import { PaginationQuery } from "../schemas/common"
+import { paginar } from "../utils/paginate"
 
-export const listar = () => {
-  return prisma.transacao.findMany({
-    include: { contaOrigem: true, contaDestino: true },
-    orderBy: { id: "desc" },
-  })
+export const listar = (paginacao: PaginationQuery) => {
+  return paginar(
+    () => prisma.transacao.count(),
+    (skip, take) =>
+      prisma.transacao.findMany({
+        include: { contaOrigem: true, contaDestino: true },
+        orderBy: { id: "desc" },
+        skip,
+        take,
+      }),
+    paginacao,
+  )
 }
 
 export const listarPorConta = (contaId: number) => {
   return prisma.transacao.findMany({
     where: { OR: [{ contaOrigemId: contaId }, { contaDestinoId: contaId }] },
     orderBy: { id: "desc" },
+    take: 50,
   })
 }
 

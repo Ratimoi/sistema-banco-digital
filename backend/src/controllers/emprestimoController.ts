@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { asyncHandler } from "../utils/asyncHandler"
 import * as emprestimoService from "../services/emprestimoService"
+import { paginationQuerySchema } from "../schemas/common"
 
 export const criarEmprestimo = asyncHandler(async (req: Request, res: Response) => {
   const emprestimo = await emprestimoService.criar(req.body)
@@ -8,7 +9,7 @@ export const criarEmprestimo = asyncHandler(async (req: Request, res: Response) 
 })
 
 export const listarEmprestimos = asyncHandler(async (req: Request, res: Response) => {
-  const emprestimos = await emprestimoService.listar()
+  const emprestimos = await emprestimoService.listar(paginationQuerySchema.parse(req.query))
   return res.json(emprestimos)
 })
 

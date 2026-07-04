@@ -1,91 +1,84 @@
 import { useState, useEffect } from "react"
-import { getContas, createConta, updateConta, deleteConta } from "../services/contaService"
+import { getContas, createConta, updateConta, deleteConta, ContaInput } from "../services/contaService"
 import { getClientes } from "../services/clienteService"
-import { Modal, Confirm, toast } from "../components/ui"
+import { Modal, Confirm, Pagination, toast } from "../components/ui"
+import { useCrudPage } from "../hooks/useCrudPage"
+import { Cliente, Conta } from "../types"
 
-const empty = { numeroConta: "", tipo: "corrente", saldo: 0, clienteId: "" }
+interface ContaForm {
+  numeroConta: string
+  tipo: string
+  saldo: string
+  clienteId: string
+}
+
+const empty: ContaForm = { numeroConta: "", tipo: "corrente", saldo: "0", clienteId: "" }
+
+const buildPayload = (form: ContaForm): ContaInput => ({
+  numeroConta: form.numeroConta,
+  tipo: form.tipo,
+  saldo: Number(form.saldo),
+  clienteId: Number(form.clienteId),
+})
 
 export default function ContasPage() {
-  const [contas, setContas] = useState<any[]>([])
-  const [clientes, setClientes] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [modal, setModal] = useState(false)
-  const [editing, setEditing] = useState<any>(null)
-  const [form, setForm] = useState<any>(empty)
-  const [saving, setSaving] = useState(false)
-  const [confirmId, setConfirmId] = useState<number | null>(null)
-  const [deleting, setDeleting] = useState(false)
+  const {
+    dados: contas,
+    total,
+    pagina,
+    totalPaginas,
+    loading,
+    modal,
+    setModal,
+    editing,
+    form,
+    saving,
+    confirmId,
+    setConfirmId,
+    deleting,
+    changePage,
+    openCreate,
+    openEdit,
+    handleSubmit,
+    handleDelete,
+    f,
+  } = useCrudPage<Conta, ContaForm, ContaInput>({
+    fetchPage: getContas,
+    create: createConta,
+    update: updateConta,
+    remove: deleteConta,
+    emptyForm: empty,
+    toEditForm: (c) => ({
+      numeroConta: c.numeroConta,
+      tipo: c.tipo,
+      saldo: c.saldo,
+      clienteId: String(c.clienteId),
+    }),
+    buildPayload,
+    messages: {
+      created: "Conta criada!",
+      updated: "Conta atualizada!",
+      deleted: "Conta deletada!",
+      loadError: "Erro ao carregar dados",
+      saveError: "Erro ao salvar conta",
+      deleteError: "Erro ao deletar conta",
+    },
+  })
 
-  const load = async () => {
-    try {
-      const [c, cl] = await Promise.all([getContas(), getClientes()])
-      setContas(c.data)
-      setClientes(cl.data)
-    } catch {
-      toast.error("Erro ao carregar dados")
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [clientes, setClientes] = useState<Cliente[]>([])
 
   useEffect(() => {
-    load()
+    getClientes(1, 100)
+      .then((res) => setClientes(res.data.dados))
+      .catch(() => toast.error("Erro ao carregar clientes"))
   }, [])
-
-  const openCreate = () => {
-    setEditing(null)
-    setForm(empty)
-    setModal(true)
-  }
-  const openEdit = (c: any) => {
-    setEditing(c)
-    setForm({ numeroConta: c.numeroConta, tipo: c.tipo, saldo: c.saldo, clienteId: c.clienteId })
-    setModal(true)
-  }
-
-  const handleSubmit = async () => {
-    setSaving(true)
-    try {
-      const data = { ...form, saldo: Number(form.saldo), clienteId: Number(form.clienteId) }
-      if (editing) {
-        await updateConta(editing.id, data)
-        toast.success("Conta atualizada!")
-      } else {
-        await createConta(data)
-        toast.success("Conta criada!")
-      }
-      setModal(false)
-      load()
-    } catch {
-      toast.error("Erro ao salvar conta")
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleDelete = async () => {
-    if (!confirmId) return
-    setDeleting(true)
-    try {
-      await deleteConta(confirmId)
-      toast.success("Conta deletada!")
-      setConfirmId(null)
-      load()
-    } catch {
-      toast.error("Erro ao deletar conta")
-    } finally {
-      setDeleting(false)
-    }
-  }
-
-  const f = (k: string) => (e: any) => setForm((prev: any) => ({ ...prev, [k]: e.target.value }))
 
   return (
     <>
       <div className="page-header">
         <div>
           <div className="page-title">Contas</div>
-          <div className="page-subtitle">{contas.length} registros</div>
+          <div className="page-subtitle">{total} registros</div>
         </div>
         <button className="btn btn-primary" onClick={openCreate}>
           + Nova Conta
@@ -128,7 +121,7 @@ export default function ContasPage() {
                           {c.tipo}
                         </span>
                       </td>
-                      <td className="mono" style={{ color: c.saldo >= 0 ? "var(--accent)" : "var(--red)" }}>
+                      <td className="mono" style={{ color: Number(c.saldo) >= 0 ? "var(--accent)" : "var(--red)" }}>
                         R$ {Number(c.saldo).toFixed(2)}
                       </td>
                       <td>{c.cliente?.nome ?? `#${c.clienteId}`}</td>
@@ -148,6 +141,7 @@ export default function ContasPage() {
               </table>
             )}
           </div>
+          <Pagination pagina={pagina} totalPaginas={totalPaginas} total={total} onChange={changePage} />
         </div>
       </div>
 
