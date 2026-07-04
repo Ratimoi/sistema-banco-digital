@@ -26,3 +26,13 @@ export const deletarEmprestimo = asyncHandler(async (req: Request, res: Response
   await emprestimoService.deletar(Number(req.params.id))
   return res.json({ message: "Empréstimo deletado com sucesso" })
 })
+
+export const aprovarEmprestimo = asyncHandler(async (req: Request, res: Response) => {
+  const emprestimo = await emprestimoService.aprovar(Number(req.params.id))
+  return res.json(emprestimo)
+})
+
+export const rejeitarEmprestimo = asyncHandler(async (req: Request, res: Response) => {
+  const emprestimo = await emprestimoService.rejeitar(Number(req.params.id))
+  return res.json(emprestimo)
+})

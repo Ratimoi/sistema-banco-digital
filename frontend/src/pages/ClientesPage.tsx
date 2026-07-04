@@ -128,7 +128,7 @@ export default function ClientesPage() {
                     <th>Nome</th>
                     <th>CPF</th>
                     <th>E-mail</th>
-                    <th>Contas</th>
+                    <th>Conta</th>
                     <th>Cadastro</th>
                     <th>Ações</th>
                   </tr>
@@ -143,7 +143,11 @@ export default function ClientesPage() {
                       <td className="mono">{c.cpf}</td>
                       <td className="mono">{c.email}</td>
                       <td>
-                        <span className="badge badge-blue">{c.contas?.length ?? 0}</span>
+                        {c.conta ? (
+                          <span className="badge badge-blue mono">{c.conta.numeroConta}</span>
+                        ) : (
+                          <span style={{ color: "var(--text3)" }}>—</span>
+                        )}
                       </td>
                       <td className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
                         {new Date(c.createdAt).toLocaleDateString("pt-BR")}

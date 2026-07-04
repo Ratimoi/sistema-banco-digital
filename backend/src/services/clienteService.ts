@@ -20,7 +20,7 @@ export const criar = async (data: CreateClienteInput) => {
 
 export const listar = () => {
   return prisma.cliente.findMany({
-    select: { ...clienteSelect, contas: true },
+    select: { ...clienteSelect, conta: true },
     orderBy: { id: "asc" },
   })
 }
@@ -28,7 +28,7 @@ export const listar = () => {
 export const buscarPorId = (id: number) => {
   return prisma.cliente.findUnique({
     where: { id },
-    select: { ...clienteSelect, contas: true, emprestimos: true },
+    select: { ...clienteSelect, conta: true, emprestimos: true },
   })
 }
 

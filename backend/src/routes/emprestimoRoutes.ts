@@ -5,8 +5,11 @@ import {
   buscarEmprestimo,
   atualizarEmprestimo,
   deletarEmprestimo,
+  aprovarEmprestimo,
+  rejeitarEmprestimo,
 } from "../controllers/emprestimoController"
 import { validate } from "../middlewares/validate"
+import { requireNivel } from "../middlewares/nivel"
 import { idParamSchema } from "../schemas/common"
 import { createEmprestimoSchema, updateEmprestimoSchema } from "../schemas/emprestimoSchema"
 
@@ -17,5 +20,7 @@ router.get("/", listarEmprestimos)
 router.get("/:id", validate(idParamSchema, "params"), buscarEmprestimo)
 router.put("/:id", validate(idParamSchema, "params"), validate(updateEmprestimoSchema), atualizarEmprestimo)
 router.delete("/:id", validate(idParamSchema, "params"), deletarEmprestimo)
+router.post("/:id/aprovar", validate(idParamSchema, "params"), requireNivel(2), aprovarEmprestimo)
+router.post("/:id/rejeitar", validate(idParamSchema, "params"), requireNivel(2), rejeitarEmprestimo)
 
 export default router

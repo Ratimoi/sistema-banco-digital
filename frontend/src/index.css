@@ -7,26 +7,27 @@
 }
 
 :root {
-  --bg: #0a0a0f;
-  --bg2: #111118;
-  --bg3: #1a1a24;
-  --border: #2a2a3a;
-  --border2: #3a3a50;
-  --text: #e8e8f0;
-  --text2: #9090a8;
-  --text3: #5a5a72;
-  --accent: #00e5a0;
-  --accent2: #00b87a;
-  --accent-dim: rgba(0, 229, 160, 0.08);
-  --accent-glow: rgba(0, 229, 160, 0.15);
-  --red: #ff4d6a;
-  --red-dim: rgba(255, 77, 106, 0.08);
-  --yellow: #ffd166;
-  --yellow-dim: rgba(255, 209, 102, 0.08);
-  --blue: #4d9fff;
-  --blue-dim: rgba(77, 159, 255, 0.08);
-  --radius: 8px;
+  --bg: #0a0c12;
+  --bg2: #10131c;
+  --bg3: #191d29;
+  --border: #232838;
+  --border2: #333a4f;
+  --text: #eef1f6;
+  --text2: #9aa3b8;
+  --text3: #5c6579;
+  --accent: #2dd4a7;
+  --accent2: #15b58c;
+  --accent-dim: rgba(45, 212, 167, 0.1);
+  --accent-glow: rgba(45, 212, 167, 0.18);
+  --red: #ff5c7a;
+  --red-dim: rgba(255, 92, 122, 0.1);
+  --yellow: #ffcf5c;
+  --yellow-dim: rgba(255, 207, 92, 0.1);
+  --blue: #5aa8ff;
+  --blue-dim: rgba(90, 168, 255, 0.1);
+  --radius: 10px;
   --font-display: "Syne", sans-serif;
+  --font-body: "Inter", sans-serif;
   --font-mono: "DM Mono", monospace;
 }
 
@@ -38,7 +39,7 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -241,22 +242,22 @@ tr:hover td {
 .badge-green {
   background: var(--accent-dim);
   color: var(--accent);
-  border: 1px solid rgba(0, 229, 160, 0.2);
+  border: 1px solid rgba(45, 212, 167, 0.2);
 }
 .badge-red {
   background: var(--red-dim);
   color: var(--red);
-  border: 1px solid rgba(255, 77, 106, 0.2);
+  border: 1px solid rgba(255, 92, 122, 0.2);
 }
 .badge-yellow {
   background: var(--yellow-dim);
   color: var(--yellow);
-  border: 1px solid rgba(255, 209, 102, 0.2);
+  border: 1px solid rgba(255, 207, 92, 0.2);
 }
 .badge-blue {
   background: var(--blue-dim);
   color: var(--blue);
-  border: 1px solid rgba(77, 159, 255, 0.2);
+  border: 1px solid rgba(90, 168, 255, 0.2);
 }
 
 /* Buttons */
@@ -267,7 +268,7 @@ tr:hover td {
   padding: 8px 14px;
   border-radius: var(--radius);
   font-size: 13px;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -295,10 +296,10 @@ tr:hover td {
 .btn-danger {
   background: var(--red-dim);
   color: var(--red);
-  border: 1px solid rgba(255, 77, 106, 0.2);
+  border: 1px solid rgba(255, 92, 122, 0.2);
 }
 .btn-danger:hover {
-  background: rgba(255, 77, 106, 0.15);
+  background: rgba(255, 92, 122, 0.15);
 }
 
 .btn-sm {
@@ -348,7 +349,7 @@ select {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 13px;
   padding: 9px 12px;
   outline: none;
@@ -556,12 +557,12 @@ select option {
 .toast-success {
   background: var(--accent-dim);
   color: var(--accent);
-  border: 1px solid rgba(0, 229, 160, 0.2);
+  border: 1px solid rgba(45, 212, 167, 0.2);
 }
 .toast-error {
   background: var(--red-dim);
   color: var(--red);
-  border: 1px solid rgba(255, 77, 106, 0.2);
+  border: 1px solid rgba(255, 92, 122, 0.2);
 }
 
 /* Tabs */
@@ -579,7 +580,7 @@ select option {
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   background: none;
   border-top: none;
   border-left: none;

@@ -4,6 +4,8 @@ import {
   createEmprestimo,
   updateEmprestimo,
   deleteEmprestimo,
+  aprovarEmprestimo,
+  rejeitarEmprestimo,
 } from "../services/emprestimoService"
 import { getClientes } from "../services/clienteService"
 import { Modal, Confirm, toast } from "../components/ui"
@@ -20,6 +22,7 @@ export default function EmprestimosPage() {
   const [saving, setSaving] = useState(false)
   const [confirmId, setConfirmId] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [processandoId, setProcessandoId] = useState<number | null>(null)
 
   const load = async () => {
     try {
@@ -98,8 +101,40 @@ export default function EmprestimosPage() {
   const f = (k: string) => (e: any) => setForm((prev: any) => ({ ...prev, [k]: e.target.value }))
 
   const statusBadge = (s: string) => {
-    const map: any = { ativo: "badge-green", quitado: "badge-blue", inadimplente: "badge-red" }
+    const map: any = {
+      pendente: "badge-yellow",
+      ativo: "badge-green",
+      rejeitado: "badge-red",
+      quitado: "badge-blue",
+      inadimplente: "badge-red",
+    }
     return map[s] ?? "badge-yellow"
+  }
+
+  const handleAprovar = async (id: number) => {
+    setProcessandoId(id)
+    try {
+      await aprovarEmprestimo(id)
+      toast.success("Empréstimo aprovado!")
+      load()
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Erro ao aprovar empréstimo")
+    } finally {
+      setProcessandoId(null)
+    }
+  }
+
+  const handleRejeitar = async (id: number) => {
+    setProcessandoId(id)
+    try {
+      await rejeitarEmprestimo(id)
+      toast.success("Empréstimo rejeitado!")
+      load()
+    } catch (e: any) {
+      toast.error(e.response?.data?.error || "Erro ao rejeitar empréstimo")
+    } finally {
+      setProcessandoId(null)
+    }
   }
 
   return (
@@ -154,6 +189,26 @@ export default function EmprestimosPage() {
                       <td>{e.cliente?.nome ?? `#${e.clienteId}`}</td>
                       <td>
                         <div className="actions">
+                          {e.status === "pendente" && (
+                            <>
+                              <button
+                                className="btn btn-ghost btn-sm"
+                                onClick={() => handleAprovar(e.id)}
+                                disabled={processandoId === e.id}
+                                style={{ color: "var(--accent)" }}
+                              >
+                                Aprovar
+                              </button>
+                              <button
+                                className="btn btn-ghost btn-sm"
+                                onClick={() => handleRejeitar(e.id)}
+                                disabled={processandoId === e.id}
+                                style={{ color: "var(--red)" }}
+                              >
+                                Rejeitar
+                              </button>
+                            </>
+                          )}
                           <button className="btn btn-ghost btn-sm" onClick={() => openEdit(e)}>
                             Editar
                           </button>
@@ -202,7 +257,9 @@ export default function EmprestimosPage() {
             <div className="field">
               <label>Status</label>
               <select value={form.status} onChange={f("status")}>
+                <option value="pendente">Pendente</option>
                 <option value="ativo">Ativo</option>
+                <option value="rejeitado">Rejeitado</option>
                 <option value="quitado">Quitado</option>
                 <option value="inadimplente">Inadimplente</option>
               </select>
