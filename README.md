@@ -248,32 +248,42 @@ docker compose down
 
 # 🌐 Ambiente de Produção
 
-A API está disponível publicamente através do Render:
+Frontend e backend estão hospedados em dois serviços separados no Render:
 
-**API Base URL**
+**Frontend (aplicação web)**
 
-[Sistema Bancário Digital API](https://sistema-banco-digital-1.onrender.com)
+[Sistema Bancário Digital](https://sistema-banco-digital-1.onrender.com)
+
+**Backend (API)**
+
+[Sistema Bancário Digital API](https://sistema-banco-digital.onrender.com)
 
 Todas as rotas descritas nesta documentação utilizam o prefixo:
 
 ```text
-https://sistema-banco-digital-1.onrender.com/api
+https://sistema-banco-digital.onrender.com/api
 ```
 
 Exemplo:
 
 ```http
-GET https://sistema-banco-digital-1.onrender.com/api/clientes
+GET https://sistema-banco-digital.onrender.com/api/clientes
 ```
 
 ---
 
 # 🚀 Acesso Rápido
 
-## API em Produção
+## Frontend em Produção
 
 ```text
 https://sistema-banco-digital-1.onrender.com
+```
+
+## API em Produção
+
+```text
+https://sistema-banco-digital.onrender.com
 ```
 
 ## Frontend Local
@@ -295,26 +305,26 @@ http://localhost:3000
 ## Listar Clientes
 
 ```http
-GET https://sistema-banco-digital-1.onrender.com/api/clientes
+GET https://sistema-banco-digital.onrender.com/api/clientes
 ```
 
 ## Buscar Cliente por ID
 
 ```http
-GET https://sistema-banco-digital-1.onrender.com/api/clientes/1
+GET https://sistema-banco-digital.onrender.com/api/clientes/1
 ```
 
 ## Criar Cliente
 
 ```http
-POST https://sistema-banco-digital-1.onrender.com/api/clientes
+POST https://sistema-banco-digital.onrender.com/api/clientes
 Content-Type: application/json
 
 {
     "nome": "João Silva",
     "cpf": "12345678900",
     "email": "joao@email.com",
-    "senha": "123456"
+    "senha": "SenhaForte123!"
 }
 ```
 
@@ -322,7 +332,8 @@ Content-Type: application/json
 
 # ☁️ Deploy
 
-O backend encontra-se hospedado na plataforma Render.
+Frontend e backend são dois serviços independentes no Render (o frontend é um static
+site, o backend um web service Node).
 
 Principais características do ambiente:
 
@@ -460,11 +471,34 @@ Content-Type: application/json
 ```
 
 A senha deve ter no mínimo 8 caracteres, com letra minúscula, maiúscula, número e símbolo. Não é
-permitido cadastrar dois clientes com o mesmo e-mail. Excluir clientes ou contas, e aprovar/rejeitar
-empréstimos, exigem nível 3 e nível 2 respectivamente (`403 Forbidden` caso contrário). A primeira
-conta de equipe é criada via `ADMIN_EMAIL`/`ADMIN_SENHA`/`ADMIN_CPF`/`ADMIN_NIVEL` em
+permitido cadastrar dois clientes com o mesmo e-mail. Excluir clientes, contas, cartões ou
+empréstimos exige nível 3; aprovar/rejeitar empréstimos exige nível 2 (`403 Forbidden` caso
+contrário). A primeira conta de equipe é criada via
+`ADMIN_EMAIL`/`ADMIN_SENHA`/`ADMIN_CPF`/`ADMIN_NIVEL` em
 [backend/prisma/createAdmin.ts](backend/prisma/createAdmin.ts); contas adicionais recebem a
 credencial editando o campo "Nível" na tela de Clientes do painel.
+
+### Cadastro (autoatendimento)
+
+| Método | Endpoint         |
+| ------ | ---------------- |
+| POST   | /api/auth/cadastro |
+
+```http
+POST /api/auth/cadastro
+Content-Type: application/json
+
+{
+    "nome": "Maria Silva",
+    "cpf": "98765432100",
+    "email": "maria@email.com",
+    "senha": "SenhaForte123!",
+    "tipoConta": "corrente"
+}
+```
+
+Cria o `Cliente` (nível 0) e a `Conta` associada em uma única chamada — usado pela tela pública de
+cadastro do portal (`/cadastro`), sem exigir autenticação.
 
 ## Clientes
 
@@ -528,6 +562,31 @@ credencial editando o campo "Nível" na tela de Clientes do painel.
 
 ---
 
+## Portal do Cliente (autoatendimento)
+
+Rotas em `/api/cliente/*` exigem apenas um token válido (qualquer `nivel`) — usadas pelo
+painel de autoatendimento do próprio cliente em `/portal/*`.
+
+| Método | Endpoint                          |
+| ------ | --------------------------------- |
+| GET    | /api/cliente/minha-conta          |
+| GET    | /api/cliente/cartoes              |
+| POST   | /api/cliente/cartoes              |
+| GET    | /api/cliente/transacoes           |
+| POST   | /api/cliente/transacoes/saque     |
+| POST   | /api/cliente/transacoes/transferencia |
+| GET    | /api/cliente/emprestimos          |
+| POST   | /api/cliente/emprestimos          |
+| GET    | /api/cliente/comunidade           |
+| POST   | /api/cliente/comunidade           |
+
+Saque e transferência identificam a conta pelo número do cartão informado (saque só aceita cartão
+de débito, com validação de saldo). Empréstimo solicitado via cartão de crédito é validado contra o
+limite do cartão e fica pendente até um membro da equipe aprovar ou rejeitar (nível 2+) — só então
+o valor é creditado na conta.
+
+---
+
 # ✨ Funcionalidades
 
 * Cadastro de clientes
@@ -538,7 +597,9 @@ credencial editando o campo "Nível" na tela de Clientes do painel.
 * Transferências entre contas
 * Histórico de transações
 * Relatórios por e-mail
-* Autenticação de administrador via JWT
+* Portal de autoatendimento do cliente (conta, cartões, transações, empréstimo via crédito, mural
+  de comunidade)
+* Autenticação unificada via JWT, com nível de permissão por conta
 * Persistência em banco de dados PostgreSQL
 * API RESTful
 * Interface Web Responsiva
@@ -567,7 +628,8 @@ As verificações incluem:
 * Bloqueio de conta por 15 minutos após 3 tentativas de login inválidas
 * Registro de data/hora do último login, exibida na resposta do login
 * Níveis de acesso por conta (`nivel` 0-3): 0 é cliente comum, 1-3 é equipe do banco; exclusão de
-  clientes/contas exige nível 3, aprovação/rejeição de empréstimos exige nível 2
+  clientes/contas/cartões/empréstimos exige nível 3, aprovação/rejeição de empréstimos exige
+  nível 2
 * Recuperação de senha por e-mail com código temporário de 6 dígitos (expira em 15 minutos)
 * Tabela de `Log` registrando login (sucesso/falha/bloqueio), recuperação e redefinição de senha e
   exclusões de clientes/contas
@@ -578,6 +640,7 @@ As verificações incluem:
 * Arquivos `.env` protegidos via `.gitignore`
 * Variáveis de ambiente validadas na inicialização (falha rápido se algo estiver faltando)
 * ORM Prisma para evitar SQL Injection
+* Índice nas colunas de chave estrangeira (Postgres não cria automaticamente, diferente do MySQL)
 * Separação entre frontend e backend
 * Controle de relacionamentos por chaves estrangeiras
 
