@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { cadastro } from "../../services/clienteAuthService"
+import { cadastro } from "../../services/authService"
 import { toast } from "../../components/ui"
 
 const empty = { nome: "", cpf: "", email: "", senha: "", tipoConta: "corrente" }
@@ -19,7 +19,7 @@ export default function PortalCadastroPage() {
     try {
       await cadastro(form)
       toast.success("Cadastro realizado! Faça login para continuar.")
-      navigate("/portal/login", { replace: true })
+      navigate("/login", { replace: true })
     } catch (err: any) {
       toast.error(err.response?.data?.error || "Erro ao criar cadastro")
     } finally {
@@ -72,7 +72,7 @@ export default function PortalCadastroPage() {
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Criando..." : "Criar conta"}
         </button>
-        <Link to="/portal/login" style={{ color: "var(--text2)", fontSize: 12, textAlign: "center" }}>
+        <Link to="/login" style={{ color: "var(--text2)", fontSize: 12, textAlign: "center" }}>
           Já tenho conta
         </Link>
       </form>

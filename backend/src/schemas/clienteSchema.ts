@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { senhaForteSchema } from "./common"
 
 export const createClienteSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório"),
@@ -7,7 +8,8 @@ export const createClienteSchema = z.object({
     .trim()
     .regex(/^\d{11}$/, "CPF deve ter 11 dígitos"),
   email: z.string().trim().email("E-mail inválido"),
-  senha: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+  senha: senhaForteSchema,
+  nivel: z.coerce.number().int().min(0).max(3).optional(),
 })
 
 export const updateClienteSchema = createClienteSchema.partial()

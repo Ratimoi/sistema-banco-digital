@@ -1,5 +1,5 @@
 import { prisma } from "../lib/prisma"
-import { hashPassword } from "./authService"
+import { hashPassword } from "../utils/hash"
 import { CreateClienteInput, UpdateClienteInput } from "../schemas/clienteSchema"
 
 const clienteSelect = {
@@ -7,6 +7,7 @@ const clienteSelect = {
   nome: true,
   cpf: true,
   email: true,
+  nivel: true,
   createdAt: true,
 }
 

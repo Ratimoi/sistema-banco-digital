@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react"
-import { useNavigate } from "react-router-dom"
-import { login, setToken } from "../services/authService"
+import { useNavigate, Link } from "react-router-dom"
+import { login, setToken, setNivel } from "../services/authService"
 import { toast } from "../components/ui"
 
 export default function LoginPage() {
@@ -15,7 +15,8 @@ export default function LoginPage() {
     try {
       const { data } = await login(email, senha)
       setToken(data.token)
-      navigate("/admin", { replace: true })
+      setNivel(data.cliente.nivel)
+      navigate(data.cliente.nivel > 0 ? "/admin" : "/portal", { replace: true })
     } catch {
       toast.error("E-mail ou senha inválidos")
     } finally {
@@ -28,7 +29,7 @@ export default function LoginPage() {
       <form className="card auth-card" onSubmit={handleSubmit}>
         <div className="auth-logo">
           <h1>BANCO</h1>
-          <span>Sistema de Gestão</span>
+          <span>Sistema Bancário Digital</span>
         </div>
         <div className="field">
           <label>E-mail</label>
@@ -36,7 +37,7 @@ export default function LoginPage() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@banco.com"
+            placeholder="voce@email.com"
             autoFocus
             required
           />
@@ -54,6 +55,14 @@ export default function LoginPage() {
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </button>
+        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+          <Link to="/cadastro" style={{ color: "var(--text2)" }}>
+            Criar conta
+          </Link>
+          <Link to="/esqueci-senha" style={{ color: "var(--text2)" }}>
+            Esqueci minha senha
+          </Link>
+        </div>
       </form>
     </div>
   )

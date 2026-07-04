@@ -7,32 +7,14 @@ datasource db {
   provider = "postgresql"
 }
 
-model Usuario {
-  id        Int      @id @default(autoincrement())
-  nome      String
-  email     String   @unique
-  senha     String
-  nivel     Int      @default(1)
-  createdAt DateTime @default(now())
-
-  tentativasFalhas Int       @default(0)
-  bloqueadoAte     DateTime?
-  ultimoLogin      DateTime?
-
-  resetToken       String?
-  resetTokenExpiry DateTime?
-
-  logs Log[]
-}
-
 model Log {
   id        Int      @id @default(autoincrement())
   acao      String
   detalhe   String?
   createdAt DateTime @default(now())
 
-  usuarioId Int?
-  usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  clienteId Int?
+  cliente   Cliente? @relation(fields: [clienteId], references: [id], onDelete: SetNull)
 }
 
 model Cliente {
@@ -41,6 +23,7 @@ model Cliente {
   cpf        String   @unique
   email      String   @unique
   senha      String
+  nivel      Int      @default(0)
   createdAt  DateTime @default(now())
 
   tentativasFalhas Int       @default(0)
@@ -52,6 +35,7 @@ model Cliente {
   conta       Conta?
   emprestimos Emprestimo[]
   posts       Post[]
+  logs        Log[]
 }
 
 model Conta {

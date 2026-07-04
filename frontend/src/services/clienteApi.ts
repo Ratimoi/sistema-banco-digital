@@ -6,7 +6,7 @@ const clienteApi = axios.create({
 })
 
 clienteApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("banco_cliente_token")
+  const token = localStorage.getItem("banco_token")
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -16,9 +16,9 @@ clienteApi.interceptors.request.use((config) => {
 clienteApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !window.location.pathname.startsWith("/portal/login")) {
-      localStorage.removeItem("banco_cliente_token")
-      window.location.href = "/portal/login"
+    if (error.response?.status === 401 && window.location.pathname !== "/login") {
+      localStorage.removeItem("banco_token")
+      window.location.href = "/login"
     }
     return Promise.reject(error)
   },

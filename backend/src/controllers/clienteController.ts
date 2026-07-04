@@ -28,6 +28,6 @@ export const atualizarCliente = asyncHandler(async (req: Request, res: Response)
 export const deletarCliente = asyncHandler(async (req: Request, res: Response) => {
   const id = Number(req.params.id)
   await clienteService.deletar(id)
-  await registrarLog(req.usuarioId ?? null, "CLIENTE_EXCLUIDO", `Cliente #${id} excluído`)
+  await registrarLog(req.clienteId ?? null, "CLIENTE_EXCLUIDO", `Cliente #${id} excluído`)
   return res.json({ message: "Cliente deletado com sucesso" })
 })

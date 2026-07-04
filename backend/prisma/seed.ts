@@ -2,22 +2,25 @@ import bcrypt from "bcryptjs"
 import { prisma } from "../src/lib/prisma"
 
 const ADMIN_EMAIL = "admin@banco.com"
-const ADMIN_SENHA = "admin123"
+const ADMIN_SENHA = "SenhaForte123!"
+const ADMIN_CPF = "00000000000"
 
 async function main() {
-  const usuarioCount = await prisma.usuario.count()
-  if (usuarioCount === 0) {
-    await prisma.usuario.create({
+  const staffCount = await prisma.cliente.count({ where: { nivel: { gt: 0 } } })
+  if (staffCount === 0) {
+    await prisma.cliente.create({
       data: {
         nome: "Administrador",
+        cpf: ADMIN_CPF,
         email: ADMIN_EMAIL,
         senha: await bcrypt.hash(ADMIN_SENHA, 10),
+        nivel: 3,
       },
     })
-    console.log(`👤 Usuário admin criado: ${ADMIN_EMAIL} / ${ADMIN_SENHA} (troque em produção)`)
+    console.log(`👤 Conta de equipe criada: ${ADMIN_EMAIL} / ${ADMIN_SENHA} (troque em produção)`)
   }
 
-  const clienteCount = await prisma.cliente.count()
+  const clienteCount = await prisma.cliente.count({ where: { nivel: 0 } })
   if (clienteCount > 0) {
     console.log("⏭️  Seed de dados ignorado: banco já possui clientes.")
     return
