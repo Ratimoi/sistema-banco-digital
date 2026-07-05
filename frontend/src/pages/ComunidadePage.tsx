@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { getPosts, criarPost } from "../services/comunidadeService"
-import { toast } from "../components/ui"
+import { getPosts, criarPost, deletarPost } from "../services/comunidadeService"
+import { Confirm, toast } from "../components/ui"
 import { Post } from "../types"
 
 export default function ComunidadePage() {
@@ -8,6 +8,8 @@ export default function ComunidadePage() {
   const [loading, setLoading] = useState(true)
   const [conteudo, setConteudo] = useState("")
   const [posting, setPosting] = useState(false)
+  const [confirmId, setConfirmId] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const load = async () => {
     try {
@@ -35,6 +37,21 @@ export default function ComunidadePage() {
       toast.error("Erro ao publicar")
     } finally {
       setPosting(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirmId) return
+    setDeleting(true)
+    try {
+      await deletarPost(confirmId)
+      toast.success("Publicação deletada!")
+      setConfirmId(null)
+      load()
+    } catch {
+      toast.error("Erro ao deletar publicação")
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -93,9 +110,14 @@ export default function ComunidadePage() {
                 <div style={{ padding: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                     <span style={{ fontWeight: 600 }}>{p.cliente?.nome}</span>
-                    <span className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
-                      {new Date(p.createdAt).toLocaleString("pt-BR")}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
+                        {new Date(p.createdAt).toLocaleString("pt-BR")}
+                      </span>
+                      <button className="btn btn-danger btn-sm" onClick={() => setConfirmId(p.id)}>
+                        Deletar
+                      </button>
+                    </div>
                   </div>
                   <div style={{ color: "var(--text2)" }}>{p.conteudo}</div>
                 </div>
@@ -104,6 +126,15 @@ export default function ComunidadePage() {
           </div>
         )}
       </div>
+
+      {confirmId && (
+        <Confirm
+          message="Deseja deletar esta publicação?"
+          onConfirm={handleDelete}
+          onClose={() => setConfirmId(null)}
+          loading={deleting}
+        />
+      )}
     </>
   )
 }
