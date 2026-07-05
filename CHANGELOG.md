@@ -38,6 +38,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   buscar todas as tabelas inteiras só para exibir números.
 - Variável de ambiente `CORS_ORIGINS` (opcional) para configurar as origens permitidas sem
   precisar alterar código.
+- Aba "Comunidade" no painel administrativo (`/admin/comunidade`), compartilhando o mesmo mural
+  de posts do portal do cliente — a equipe agora consegue ver e publicar avisos no mesmo feed.
+- Exclusão de publicações da Comunidade pela equipe (nível 1+), para moderação. Clientes
+  continuam sem poder editar/excluir as próprias publicações.
 
 ### Changed
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de

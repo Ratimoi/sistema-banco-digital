@@ -57,6 +57,14 @@ export interface Transacao {
   contaDestino?: { numeroConta: string } | null
 }
 
+export interface Post {
+  id: number
+  conteudo: string
+  createdAt: string
+  clienteId: number
+  cliente?: { id: number; nome: string }
+}
+
 export interface DashboardStats {
   clientes: number
   contas: number
