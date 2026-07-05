@@ -11,3 +11,8 @@ export const listarPosts = asyncHandler(async (req: Request, res: Response) => {
   const posts = await comunidadeService.listar()
   return res.json(posts)
 })
+
+export const deletarPost = asyncHandler(async (req: Request, res: Response) => {
+  await comunidadeService.deletar(Number(req.params.id))
+  return res.json({ message: "Publicação deletada com sucesso" })
+})
