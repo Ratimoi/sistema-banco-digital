@@ -42,6 +42,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   de posts do portal do cliente — a equipe agora consegue ver e publicar avisos no mesmo feed.
 - Exclusão de publicações da Comunidade pela equipe (nível 1+), para moderação. Clientes
   continuam sem poder editar/excluir as próprias publicações.
+- Publicações da Comunidade agora aceitam imagem/vídeo anexado (upload de verdade via Supabase
+  Storage — o Render não mantém arquivos entre deploys), links viram texto clicável e `@nome`
+  fica destacado visualmente (sem gerar notificação nem vínculo no banco).
 
 ### Changed
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de

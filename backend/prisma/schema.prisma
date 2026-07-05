@@ -85,6 +85,8 @@ model Cartao {
 model Post {
   id        Int      @id @default(autoincrement())
   conteudo  String
+  midiaUrl  String?
+  midiaTipo String?
   createdAt DateTime @default(now())
 
   clienteId Int

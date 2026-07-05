@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import { ZodError } from "zod"
+import { MulterError } from "multer"
 import { Prisma } from "../../generated/prisma"
 import { AppError } from "../utils/AppError"
 
@@ -23,6 +24,12 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
 
   if (err instanceof ZodError) {
     return res.status(400).json({ error: "Dados inválidos", details: err.issues })
+  }
+
+  if (err instanceof MulterError) {
+    const message =
+      err.code === "LIMIT_FILE_SIZE" ? "Arquivo muito grande (máximo 25MB)" : "Falha ao processar o arquivo"
+    return res.status(400).json({ error: message })
   }
 
   if (err instanceof Prisma.PrismaClientKnownRequestError) {

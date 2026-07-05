@@ -11,6 +11,8 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
   CORS_ORIGINS: z.string().optional(),
+  SUPABASE_URL: z.string().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)

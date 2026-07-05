@@ -60,6 +60,8 @@ export interface Transacao {
 export interface Post {
   id: number
   conteudo: string
+  midiaUrl?: string | null
+  midiaTipo?: "imagem" | "video" | null
   createdAt: string
   clienteId: number
   cliente?: { id: number; nome: string }

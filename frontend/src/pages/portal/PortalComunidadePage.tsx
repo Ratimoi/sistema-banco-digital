@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react"
-import { getPosts, criarPost } from "../../services/clienteComunidadeService"
+import { getPosts, criarPost, uploadMidia } from "../../services/clienteComunidadeService"
 import { toast } from "../../components/ui"
+import { PostComposer } from "../../components/PostComposer"
+import { PostCard } from "../../components/PostCard"
+import { Post } from "../../types"
 
 export default function PortalComunidadePage() {
-  const [posts, setPosts] = useState<any[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
-  const [conteudo, setConteudo] = useState("")
-  const [posting, setPosting] = useState(false)
 
   const load = async () => {
     try {
@@ -23,20 +24,6 @@ export default function PortalComunidadePage() {
     load()
   }, [])
 
-  const handlePost = async () => {
-    if (!conteudo.trim()) return
-    setPosting(true)
-    try {
-      await criarPost(conteudo.trim())
-      setConteudo("")
-      load()
-    } catch {
-      toast.error("Erro ao publicar")
-    } finally {
-      setPosting(false)
-    }
-  }
-
   return (
     <>
       <div className="page-header">
@@ -47,34 +34,7 @@ export default function PortalComunidadePage() {
       </div>
 
       <div className="page-content">
-        <div className="card" style={{ marginBottom: 20 }}>
-          <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-            <textarea
-              value={conteudo}
-              onChange={(e) => setConteudo(e.target.value)}
-              placeholder="Compartilhe algo com a comunidade..."
-              rows={3}
-              style={{
-                background: "var(--bg3)",
-                border: "1px solid var(--border)",
-                borderRadius: "var(--radius)",
-                color: "var(--text)",
-                fontFamily: "var(--font-body)",
-                fontSize: 13,
-                padding: 12,
-                resize: "vertical",
-              }}
-            />
-            <button
-              className="btn btn-primary"
-              style={{ alignSelf: "flex-end" }}
-              onClick={handlePost}
-              disabled={posting || !conteudo.trim()}
-            >
-              {posting ? "Publicando..." : "Publicar"}
-            </button>
-          </div>
-        </div>
+        <PostComposer onUpload={uploadMidia} onCreate={criarPost} onPosted={load} />
 
         {loading ? (
           <div className="loading">Carregando...</div>
@@ -88,17 +48,7 @@ export default function PortalComunidadePage() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {posts.map((p) => (
-              <div className="card" key={p.id}>
-                <div style={{ padding: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontWeight: 600 }}>{p.cliente?.nome}</span>
-                    <span className="mono" style={{ color: "var(--text3)", fontSize: 12 }}>
-                      {new Date(p.createdAt).toLocaleString("pt-BR")}
-                    </span>
-                  </div>
-                  <div style={{ color: "var(--text2)" }}>{p.conteudo}</div>
-                </div>
-              </div>
+              <PostCard key={p.id} post={p} />
             ))}
           </div>
         )}
