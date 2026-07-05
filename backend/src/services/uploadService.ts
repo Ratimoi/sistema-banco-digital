@@ -44,3 +44,18 @@ export const enviarMidia = async (file: Express.Multer.File) => {
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(caminho)
   return { url: data.publicUrl, tipo: midiaTipo }
 }
+
+// Usado ao excluir um post (manual ou pela limpeza automática de posts antigos) para não deixar
+// arquivo órfão no bucket. Silenciosamente ignora se o Supabase não estiver configurado ou a URL
+// não bater com o formato esperado — não deve impedir a exclusão do post em si.
+export const removerMidia = async (url: string) => {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) return
+
+  const marcador = `/storage/v1/object/public/${BUCKET}/`
+  const indice = url.indexOf(marcador)
+  if (indice === -1) return
+
+  const caminho = url.slice(indice + marcador.length)
+  const supabase = getSupabase()
+  await supabase.storage.from(BUCKET).remove([caminho])
+}
