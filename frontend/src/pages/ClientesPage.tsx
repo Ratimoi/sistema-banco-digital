@@ -10,6 +10,7 @@ import {
 import { Modal, Confirm, Pagination, toast } from "../components/ui"
 import { useCrudPage } from "../hooks/useCrudPage"
 import { Cliente } from "../types"
+import { somenteDigitos } from "../utils/inputMask"
 
 interface ClienteForm {
   nome: string
@@ -40,6 +41,7 @@ export default function ClientesPage() {
     setModal,
     editing,
     form,
+    setForm,
     saving,
     confirmId,
     setConfirmId,
@@ -69,6 +71,9 @@ export default function ClientesPage() {
   })
 
   const [emailLoading, setEmailLoading] = useState<number | null>(null)
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, cpf: somenteDigitos(e.target.value, 11) }))
 
   const handleEmail = async (id: number) => {
     setEmailLoading(id)
@@ -193,7 +198,13 @@ export default function ClientesPage() {
             </div>
             <div className="field">
               <label>CPF</label>
-              <input value={form.cpf} onChange={f("cpf")} placeholder="00000000000" />
+              <input
+                value={form.cpf}
+                onChange={handleCpfChange}
+                placeholder="00000000000"
+                inputMode="numeric"
+                maxLength={11}
+              />
             </div>
             <div className="field">
               <label>Senha</label>

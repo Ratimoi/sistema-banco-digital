@@ -2,6 +2,7 @@ import { useState, FormEvent } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { cadastro } from "../../services/authService"
 import { toast } from "../../components/ui"
+import { somenteDigitos } from "../../utils/inputMask"
 
 const empty = { nome: "", cpf: "", email: "", senha: "", tipoConta: "corrente" }
 
@@ -12,6 +13,9 @@ export default function PortalCadastroPage() {
 
   const f = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((prev) => ({ ...prev, [k]: e.target.value }))
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, cpf: somenteDigitos(e.target.value, 11) }))
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -44,7 +48,14 @@ export default function PortalCadastroPage() {
         </div>
         <div className="field">
           <label>CPF</label>
-          <input value={form.cpf} onChange={f("cpf")} placeholder="00000000000" required />
+          <input
+            value={form.cpf}
+            onChange={handleCpfChange}
+            placeholder="00000000000"
+            inputMode="numeric"
+            maxLength={11}
+            required
+          />
         </div>
         <div className="field">
           <label>E-mail</label>
