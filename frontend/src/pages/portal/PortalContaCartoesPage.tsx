@@ -151,6 +151,10 @@ export default function PortalContaCartoesPage() {
               <label>Limite (R$)</label>
               <input type="number" value={form.limite} onChange={f("limite")} placeholder="1000.00" />
             </div>
+            <p className="col-span-2" style={{ color: "var(--text2)", fontSize: 12, margin: 0 }}>
+              Para solicitar um empréstimo mais tarde, você precisa de um cartão de{" "}
+              <strong>crédito</strong> — saques e transferências usam o cartão de débito.
+            </p>
           </div>
         </Modal>
       )}
