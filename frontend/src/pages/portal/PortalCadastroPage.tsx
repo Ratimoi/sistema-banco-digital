@@ -21,7 +21,11 @@ export default function PortalCadastroPage() {
       toast.success("Cadastro realizado! Faça login para continuar.")
       navigate("/login", { replace: true })
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Erro ao criar cadastro")
+      const details = err.response?.data?.details as { message: string }[] | undefined
+      const mensagem = details?.length
+        ? details.map((d) => d.message).join(" • ")
+        : err.response?.data?.error || "Erro ao criar cadastro"
+      toast.error(mensagem)
     } finally {
       setLoading(false)
     }
