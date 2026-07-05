@@ -48,6 +48,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 - Layout responsivo para celular/tablet: a barra lateral (admin e portal) vira uma gaveta aberta
   por um botão hambúrguer em telas estreitas; grids de estatísticas/formulário e modais se
   ajustam para uma coluna.
+- Campos com formato fixo (CPF, número/validade/CVV de cartão) agora restringem o que dá pra
+  digitar em vez de só validar no envio: CPF aceita só dígitos e para em 11; número e validade
+  do cartão formatam automaticamente (`0000-0000-0000-0000`, `MM/AA`) enquanto o usuário digita.
 
 ### Changed
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de

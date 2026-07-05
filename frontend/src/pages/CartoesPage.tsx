@@ -4,6 +4,7 @@ import { getContas } from "../services/contaService"
 import { Modal, Confirm, Pagination, toast } from "../components/ui"
 import { useCrudPage } from "../hooks/useCrudPage"
 import { Cartao, Conta } from "../types"
+import { somenteDigitos, formatarNumeroCartao, formatarValidade } from "../utils/inputMask"
 
 interface CartaoForm {
   numero: string
@@ -38,6 +39,7 @@ export default function CartoesPage() {
     setModal,
     editing,
     form,
+    setForm,
     saving,
     confirmId,
     setConfirmId,
@@ -80,6 +82,15 @@ export default function CartoesPage() {
       .then((res) => setContas(res.data.dados))
       .catch(() => toast.error("Erro ao carregar contas"))
   }, [])
+
+  const handleNumeroChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, numero: formatarNumeroCartao(e.target.value) }))
+
+  const handleValidadeChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, validade: formatarValidade(e.target.value) }))
+
+  const handleCvvChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, cvv: somenteDigitos(e.target.value, 4) }))
 
   return (
     <>
@@ -171,15 +182,33 @@ export default function CartoesPage() {
           <div className="form-grid">
             <div className="field col-span-2">
               <label>Número do Cartão</label>
-              <input value={form.numero} onChange={f("numero")} placeholder="0000-0000-0000-0000" />
+              <input
+                value={form.numero}
+                onChange={handleNumeroChange}
+                placeholder="0000-0000-0000-0000"
+                inputMode="numeric"
+                maxLength={19}
+              />
             </div>
             <div className="field">
               <label>Validade</label>
-              <input value={form.validade} onChange={f("validade")} placeholder="MM/AA" />
+              <input
+                value={form.validade}
+                onChange={handleValidadeChange}
+                placeholder="MM/AA"
+                inputMode="numeric"
+                maxLength={5}
+              />
             </div>
             <div className="field">
               <label>CVV</label>
-              <input value={form.cvv} onChange={f("cvv")} placeholder="123" maxLength={4} />
+              <input
+                value={form.cvv}
+                onChange={handleCvvChange}
+                placeholder="123"
+                inputMode="numeric"
+                maxLength={4}
+              />
             </div>
             <div className="field">
               <label>Tipo</label>
