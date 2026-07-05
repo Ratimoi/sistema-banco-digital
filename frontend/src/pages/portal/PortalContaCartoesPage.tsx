@@ -63,7 +63,7 @@ export default function PortalContaCartoesPage() {
       </div>
 
       <div className="page-content">
-        <div className="stats-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+        <div className="stats-grid stats-grid-3">
           <div className="stat-card">
             <div className="stat-label">Número da conta</div>
             <div className="stat-value mono" style={{ fontSize: 20 }}>
