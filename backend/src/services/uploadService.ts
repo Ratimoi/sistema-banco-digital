@@ -2,6 +2,13 @@ import { createClient } from "@supabase/supabase-js"
 import { env } from "../config/env"
 import { AppError } from "../utils/AppError"
 
+// O @supabase/supabase-js exige um WebSocket global mesmo só usando o Storage (não Realtime),
+// e o Node 20 (usado na imagem do backend) não tem WebSocket nativo — só a partir do Node 22.
+if (!globalThis.WebSocket) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  globalThis.WebSocket = require("ws")
+}
+
 const BUCKET = "comunidade-midia"
 
 const TIPOS_PERMITIDOS: Record<string, "imagem" | "video"> = {
