@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react"
-import { getPosts, criarPost } from "../../services/clienteComunidadeService"
-import { toast } from "../../components/ui"
+import { getPosts, criarPost } from "../services/comunidadeService"
+import { toast } from "../components/ui"
+import { Post } from "../types"
 
-export default function PortalComunidadePage() {
-  const [posts, setPosts] = useState<any[]>([])
+export default function ComunidadePage() {
+  const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [conteudo, setConteudo] = useState("")
   const [posting, setPosting] = useState(false)
@@ -52,7 +53,7 @@ export default function PortalComunidadePage() {
             <textarea
               value={conteudo}
               onChange={(e) => setConteudo(e.target.value)}
-              placeholder="Compartilhe algo com a comunidade..."
+              placeholder="Compartilhe um aviso com os clientes..."
               rows={3}
               style={{
                 background: "var(--bg3)",

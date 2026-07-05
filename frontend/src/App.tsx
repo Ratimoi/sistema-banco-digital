@@ -9,6 +9,7 @@ import ContasPage from "./pages/ContasPage"
 import CartoesPage from "./pages/CartoesPage"
 import EmprestimosPage from "./pages/EmprestimosPage"
 import TransacoesPage from "./pages/TransacoesPage"
+import ComunidadePage from "./pages/ComunidadePage"
 import PortalCadastroPage from "./pages/portal/PortalCadastroPage"
 import PortalEsqueciSenhaPage from "./pages/portal/PortalEsqueciSenhaPage"
 import PortalRedefinirSenhaPage from "./pages/portal/PortalRedefinirSenhaPage"
@@ -82,6 +83,7 @@ const navItems = [
   { to: "/admin/cartoes", label: "Cartões", icon: "▤" },
   { to: "/admin/emprestimos", label: "Empréstimos", icon: "◆" },
   { to: "/admin/transacoes", label: "Transações", icon: "⇄" },
+  { to: "/admin/comunidade", label: "Comunidade", icon: "💬" },
 ]
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -135,6 +137,7 @@ function AdminLayout() {
           <Route path="/cartoes" element={<CartoesPage />} />
           <Route path="/emprestimos" element={<EmprestimosPage />} />
           <Route path="/transacoes" element={<TransacoesPage />} />
+          <Route path="/comunidade" element={<ComunidadePage />} />
         </Routes>
       </main>
     </div>
