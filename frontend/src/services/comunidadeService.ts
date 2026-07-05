@@ -1,5 +1,6 @@
-import clienteApi from "./clienteApi"
+import api from "./api"
+import { Post } from "../types"
 
-export const getPosts = () => clienteApi.get("/comunidade")
+export const getPosts = () => api.get<Post[]>("/comunidade")
 
-export const criarPost = (conteudo: string) => clienteApi.post("/comunidade", { conteudo })
+export const criarPost = (conteudo: string) => api.post("/comunidade", { conteudo })

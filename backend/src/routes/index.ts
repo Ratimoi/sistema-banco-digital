@@ -6,6 +6,7 @@ import emprestimoRoutes from "./emprestimoRoutes"
 import cartaoRoutes from "./cartaoRoutes"
 import logRoutes from "./logRoutes"
 import dashboardRoutes from "./dashboardRoutes"
+import comunidadeRoutes from "./comunidadeRoutes"
 
 const router = Router()
 
@@ -16,5 +17,6 @@ router.use("/emprestimos", emprestimoRoutes)
 router.use("/cartoes", cartaoRoutes)
 router.use("/logs", logRoutes)
 router.use("/dashboard", dashboardRoutes)
+router.use("/comunidade", comunidadeRoutes)
 
 export default router
