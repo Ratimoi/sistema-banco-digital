@@ -12,6 +12,12 @@ import { errorHandler } from "./middlewares/errorHandler"
 
 const app = express()
 
+// O Render fica atrás de um proxy reverso e envia X-Forwarded-For; sem confiar nele, o
+// express-rate-limit não consegue identificar o IP real de cada cliente (erro
+// ERR_ERL_UNEXPECTED_X_FORWARDED_FOR) e acaba tratando todo mundo como um único IP, o que
+// esgota o limite de tentativas para qualquer pessoa.
+app.set("trust proxy", 1)
+
 const defaultOrigins = [
   "http://localhost",
   "http://localhost:5173",
