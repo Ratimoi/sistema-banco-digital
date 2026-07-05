@@ -45,6 +45,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 - Publicações da Comunidade agora aceitam imagem/vídeo anexado (upload de verdade via Supabase
   Storage — o Render não mantém arquivos entre deploys), links viram texto clicável e `@nome`
   fica destacado visualmente (sem gerar notificação nem vínculo no banco).
+- Layout responsivo para celular/tablet: a barra lateral (admin e portal) vira uma gaveta aberta
+  por um botão hambúrguer em telas estreitas; grids de estatísticas/formulário e modais se
+  ajustam para uma coluna.
 
 ### Changed
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de
