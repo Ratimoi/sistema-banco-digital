@@ -140,8 +140,17 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+// Nível 1 (equipe) só acessa a Comunidade — o backend já bloqueia o resto (403), isso evita
+// mostrar telas que nunca vão carregar dados.
+function RequireNivel2({ children }: { children: React.ReactNode }) {
+  if (getNivel() < 2) return <Navigate to="/admin/comunidade" replace />
+  return <>{children}</>
+}
+
 function AdminLayout() {
   const navigate = useNavigate()
+  const nivel = getNivel()
+  const itensVisiveis = nivel >= 2 ? navItems : navItems.filter((item) => item.to === "/admin/comunidade")
 
   const handleLogout = () => {
     clearToken()
@@ -154,17 +163,59 @@ function AdminLayout() {
     <SidebarLayout
       title="BANCO"
       subtitle="Sistema de Gestão"
-      navItems={navItems}
+      navItems={itensVisiveis}
       exactPath="/admin"
       onLogout={handleLogout}
     >
       <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/clientes" element={<ClientesPage />} />
-        <Route path="/contas" element={<ContasPage />} />
-        <Route path="/cartoes" element={<CartoesPage />} />
-        <Route path="/emprestimos" element={<EmprestimosPage />} />
-        <Route path="/transacoes" element={<TransacoesPage />} />
+        <Route
+          path="/"
+          element={
+            <RequireNivel2>
+              <DashboardPage />
+            </RequireNivel2>
+          }
+        />
+        <Route
+          path="/clientes"
+          element={
+            <RequireNivel2>
+              <ClientesPage />
+            </RequireNivel2>
+          }
+        />
+        <Route
+          path="/contas"
+          element={
+            <RequireNivel2>
+              <ContasPage />
+            </RequireNivel2>
+          }
+        />
+        <Route
+          path="/cartoes"
+          element={
+            <RequireNivel2>
+              <CartoesPage />
+            </RequireNivel2>
+          }
+        />
+        <Route
+          path="/emprestimos"
+          element={
+            <RequireNivel2>
+              <EmprestimosPage />
+            </RequireNivel2>
+          }
+        />
+        <Route
+          path="/transacoes"
+          element={
+            <RequireNivel2>
+              <TransacoesPage />
+            </RequireNivel2>
+          }
+        />
         <Route path="/comunidade" element={<ComunidadePage />} />
       </Routes>
     </SidebarLayout>

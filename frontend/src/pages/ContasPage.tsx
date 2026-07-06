@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { getContas, createConta, updateConta, deleteConta, ContaInput } from "../services/contaService"
 import { getClientes } from "../services/clienteService"
+import { getNivel } from "../services/authService"
 import { Modal, Confirm, Pagination, toast } from "../components/ui"
 import { useCrudPage } from "../hooks/useCrudPage"
 import { Cliente, Conta } from "../types"
@@ -22,6 +23,10 @@ const buildPayload = (form: ContaForm): ContaInput => ({
 })
 
 export default function ContasPage() {
+  // Só nível 3 define/altera o saldo diretamente — nível 2 cria/edita a conta normalmente, mas o
+  // backend ignora esse campo se vier na requisição (fica em 0 na criação, sem mudar na edição).
+  const podeEditarSaldo = getNivel() >= 3
+
   const {
     dados: contas,
     total,
@@ -172,10 +177,12 @@ export default function ContasPage() {
                 <option value="poupanca">Poupança</option>
               </select>
             </label>
-            <label className="field">
-              Saldo Inicial (R$)
-              <input type="number" value={form.saldo} onChange={f("saldo")} placeholder="0.00" />
-            </label>
+            {podeEditarSaldo && (
+              <label className="field">
+                Saldo Inicial (R$)
+                <input type="number" value={form.saldo} onChange={f("saldo")} placeholder="0.00" />
+              </label>
+            )}
             <label className="field">
               Cliente
               <select value={form.clienteId} onChange={f("clienteId")}>

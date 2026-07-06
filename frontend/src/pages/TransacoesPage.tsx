@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback } from "react"
 import { getTransacoes, deposito, saque, transferencia } from "../services/transacaoService"
 import { getContas } from "../services/contaService"
+import { getNivel } from "../services/authService"
 import { Pagination, toast } from "../components/ui"
 import { Conta, Transacao } from "../types"
 
 export default function TransacoesPage() {
+  // Movimentação direta de saldo (depósito/saque/transferência) exige nível 3 — o backend já
+  // bloqueia (403), mas nível 2 nem vê essas abas para não tentar algo que vai falhar.
+  const tabsDisponiveis =
+    getNivel() >= 3
+      ? (["historico", "deposito", "saque", "transferencia"] as const)
+      : (["historico"] as const)
+
   const [tab, setTab] = useState<"historico" | "deposito" | "saque" | "transferencia">("historico")
   const [transacoes, setTransacoes] = useState<Transacao[]>([])
   const [total, setTotal] = useState(0)
@@ -108,7 +116,7 @@ export default function TransacoesPage() {
 
       <div className="page-content">
         <div className="tabs">
-          {(["historico", "deposito", "saque", "transferencia"] as const).map((t) => (
+          {tabsDisponiveis.map((t) => (
             <button key={t} className={`tab ${tab === t ? "active" : ""}`} onClick={() => setTab(t)}>
               {
                 {
