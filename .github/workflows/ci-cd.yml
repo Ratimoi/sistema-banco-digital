@@ -1,4 +1,4 @@
-name: CI — Sistema Banco Digital
+name: CI — TeenBank
 
 on:
   pull_request:

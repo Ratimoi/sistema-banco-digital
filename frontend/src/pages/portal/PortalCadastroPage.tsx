@@ -39,7 +39,7 @@ export default function PortalCadastroPage() {
     <div className="auth-page">
       <form className="card auth-card" onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
         <div className="auth-logo">
-          <h1>BANCO</h1>
+          <h1>TEENBANK</h1>
           <span>Criar conta</span>
         </div>
         <label className="field">
