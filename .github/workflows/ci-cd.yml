@@ -2,7 +2,7 @@ name: CI — Sistema Banco Digital
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   ci-backend:
@@ -44,4 +44,5 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run lint
+      - run: npm run test
       - run: npm run build
