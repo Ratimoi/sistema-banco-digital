@@ -20,9 +20,13 @@ const app = express()
 // esgota o limite de tentativas para qualquer pessoa.
 app.set("trust proxy", 1)
 
+// Mantém as URLs antigas (sistema-banco-digital*) na lista durante a transição para o domínio
+// novo (teenbank*) — quem já tinha o link antigo salvo continua funcionando.
 const defaultOrigins = [
   "http://localhost",
   "http://localhost:5173",
+  "https://teenbank.onrender.com",
+  "https://teenbank-api.onrender.com",
   "https://sistema-banco-digital-1.onrender.com",
   "https://sistema-banco-digital.onrender.com",
 ]

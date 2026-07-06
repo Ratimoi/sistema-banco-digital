@@ -86,6 +86,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 - Projeto renomeado de "Sistema Bancário Digital" para **TeenBank** (logo, título das páginas,
   remetente de e-mail, nome dos pacotes `package.json`, containers do `docker-compose.yml` e
   título do workflow de CI). As URLs de produção e o nome do repositório no GitHub não mudaram.
+- Novos serviços de produção no Render com o domínio novo: frontend em
+  `https://teenbank.onrender.com` e backend em `https://teenbank-api.onrender.com` (o Render não
+  permite trocar o subdomínio de um serviço existente, só criar um novo). Os serviços antigos
+  (`sistema-banco-digital*.onrender.com`) continuam no ar durante a transição — a lista de
+  origens do CORS (`server.ts`) e a CSP do `nginx.conf` aceitam os dois domínios.
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de
   `any` nas telas do painel; hook `useCrudPage` compartilhado entre Clientes/Contas/Cartões/
   Empréstimos para reduzir a duplicação de load/criar/editar/deletar.
