@@ -257,26 +257,27 @@ docker compose down
 
 # 🌐 Ambiente de Produção
 
-Frontend e backend estão hospedados em dois serviços separados no Render:
+Frontend e backend estão hospedados em dois serviços separados no Render. Os endereços antigos
+(`sistema-banco-digital*.onrender.com`) continuam no ar durante a transição para o domínio novo.
 
 **Frontend (aplicação web)**
 
-[TeenBank](https://sistema-banco-digital-1.onrender.com)
+[TeenBank](https://teenbank.onrender.com)
 
 **Backend (API)**
 
-[TeenBank API](https://sistema-banco-digital.onrender.com)
+[TeenBank API](https://teenbank-api.onrender.com)
 
 Todas as rotas descritas nesta documentação utilizam o prefixo:
 
 ```text
-https://sistema-banco-digital.onrender.com/api
+https://teenbank-api.onrender.com/api
 ```
 
 Exemplo:
 
 ```http
-GET https://sistema-banco-digital.onrender.com/api/clientes
+GET https://teenbank-api.onrender.com/api/clientes
 ```
 
 ---
@@ -286,13 +287,13 @@ GET https://sistema-banco-digital.onrender.com/api/clientes
 ## Frontend em Produção
 
 ```text
-https://sistema-banco-digital-1.onrender.com
+https://teenbank.onrender.com
 ```
 
 ## API em Produção
 
 ```text
-https://sistema-banco-digital.onrender.com
+https://teenbank-api.onrender.com
 ```
 
 ## Frontend Local
@@ -314,19 +315,19 @@ http://localhost:3000
 ## Listar Clientes
 
 ```http
-GET https://sistema-banco-digital.onrender.com/api/clientes
+GET https://teenbank-api.onrender.com/api/clientes
 ```
 
 ## Buscar Cliente por ID
 
 ```http
-GET https://sistema-banco-digital.onrender.com/api/clientes/1
+GET https://teenbank-api.onrender.com/api/clientes/1
 ```
 
 ## Criar Cliente
 
 ```http
-POST https://sistema-banco-digital.onrender.com/api/clientes
+POST https://teenbank-api.onrender.com/api/clientes
 Content-Type: application/json
 
 {
