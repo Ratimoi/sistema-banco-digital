@@ -6,6 +6,7 @@ import { env } from "./config/env"
 import routes from "./routes"
 import clienteAuthRoutes from "./routes/clienteAuthRoutes"
 import clientePortalRoutes from "./routes/clientePortalRoutes"
+import comunidadeRoutes from "./routes/comunidadeRoutes"
 import { auth } from "./middlewares/auth"
 import { requireNivel } from "./middlewares/nivel"
 import { errorHandler } from "./middlewares/errorHandler"
@@ -52,7 +53,10 @@ const clienteAuthLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10 })
 
 app.use("/api/auth", clienteAuthLimiter, clienteAuthRoutes)
 app.use("/api/cliente", auth, clientePortalRoutes)
-app.use("/api", auth, requireNivel(1), routes)
+// Nível 1 (equipe) só interage com a Comunidade — precisa ser montada antes do mount geral
+// abaixo (nível 2+), senão o Express nunca chegaria aqui para uma conta de nível 1.
+app.use("/api/comunidade", auth, requireNivel(1), comunidadeRoutes)
+app.use("/api", auth, requireNivel(2), routes)
 
 app.use(errorHandler)
 
