@@ -31,7 +31,7 @@ export default function PortalRedefinirSenhaPage() {
     <div className="auth-page">
       <form className="card auth-card" onSubmit={handleSubmit}>
         <div className="auth-logo">
-          <h1>BANCO</h1>
+          <h1>TEENBANK</h1>
           <span>Redefinir senha</span>
         </div>
         <label className="field">

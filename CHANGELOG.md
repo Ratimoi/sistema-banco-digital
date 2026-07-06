@@ -83,6 +83,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   soltos — sem integrar um serviço externo como Sentry, que exigiria conta/API key própria.
 
 ### Changed
+- Projeto renomeado de "Sistema Bancário Digital" para **TeenBank** (logo, título das páginas,
+  remetente de e-mail, nome dos pacotes `package.json`, containers do `docker-compose.yml` e
+  título do workflow de CI). As URLs de produção e o nome do repositório no GitHub não mudaram.
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de
   `any` nas telas do painel; hook `useCrudPage` compartilhado entre Clientes/Contas/Cartões/
   Empréstimos para reduzir a duplicação de load/criar/editar/deletar.

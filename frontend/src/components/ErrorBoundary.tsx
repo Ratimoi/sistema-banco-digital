@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
       <div className="auth-page">
         <div className="card auth-card" style={{ textAlign: "center", gap: 16 }}>
           <div className="auth-logo">
-            <h1>BANCO</h1>
+            <h1>TEENBANK</h1>
             <span>Algo deu errado</span>
           </div>
           <p style={{ color: "var(--text2)" }}>

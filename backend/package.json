@@ -1,5 +1,5 @@
 {
-  "name": "sistema-banco-digital-backend",
+  "name": "teenbank-backend",
   "version": "1.1.0",
   "description": "API REST do Sistema Banco Digital",
   "main": "dist/server.js",

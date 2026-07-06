@@ -1,4 +1,4 @@
-# 🏦 Sistema Bancário Digital
+# 🏦 TeenBank
 
 Sistema completo de gerenciamento bancário desenvolvido com arquitetura Full Stack, composto por uma API REST em Node.js/Express e uma interface web em React.
 
@@ -31,7 +31,7 @@ O projeto permite o gerenciamento de clientes, contas bancárias, cartões, empr
 
 # 📖 Sobre o Projeto
 
-O Sistema Bancário Digital foi desenvolvido como projeto acadêmico da disciplina de Desenvolvimento de Serviços e APIs.
+O TeenBank foi desenvolvido como projeto acadêmico da disciplina de Desenvolvimento de Serviços e APIs.
 
 A aplicação simula operações bancárias reais, permitindo:
 
@@ -261,11 +261,11 @@ Frontend e backend estão hospedados em dois serviços separados no Render:
 
 **Frontend (aplicação web)**
 
-[Sistema Bancário Digital](https://sistema-banco-digital-1.onrender.com)
+[TeenBank](https://sistema-banco-digital-1.onrender.com)
 
 **Backend (API)**
 
-[Sistema Bancário Digital API](https://sistema-banco-digital.onrender.com)
+[TeenBank API](https://sistema-banco-digital.onrender.com)
 
 Todas as rotas descritas nesta documentação utilizam o prefixo:
 

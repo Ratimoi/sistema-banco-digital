@@ -109,7 +109,7 @@ function PortalLayout() {
 
   return (
     <SidebarLayout
-      title="BANCO"
+      title="TEENBANK"
       subtitle="Portal do Cliente"
       navItems={portalNavItems}
       exactPath="/portal"
@@ -161,7 +161,7 @@ function AdminLayout() {
 
   return (
     <SidebarLayout
-      title="BANCO"
+      title="TEENBANK"
       subtitle="Sistema de Gestão"
       navItems={itensVisiveis}
       exactPath="/admin"
