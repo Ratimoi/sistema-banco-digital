@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react"
 import { useNavigate, Link } from "react-router-dom"
-import { login, setToken, setNivel } from "../services/authService"
+import { login, setToken, setRefreshToken, setNivel } from "../services/authService"
 import { toast } from "../components/ui"
 
 export default function LoginPage() {
@@ -15,6 +15,7 @@ export default function LoginPage() {
     try {
       const { data } = await login(email, senha)
       setToken(data.token)
+      setRefreshToken(data.refreshToken)
       setNivel(data.cliente.nivel)
       navigate(data.cliente.nivel > 0 ? "/admin" : "/portal", { replace: true })
     } catch {
@@ -31,8 +32,8 @@ export default function LoginPage() {
           <h1>BANCO</h1>
           <span>Sistema Bancário Digital</span>
         </div>
-        <div className="field">
-          <label>E-mail</label>
+        <label className="field">
+          E-mail
           <input
             type="email"
             value={email}
@@ -41,9 +42,9 @@ export default function LoginPage() {
             autoFocus
             required
           />
-        </div>
-        <div className="field">
-          <label>Senha</label>
+        </label>
+        <label className="field">
+          Senha
           <input
             type="password"
             value={senha}
@@ -51,7 +52,7 @@ export default function LoginPage() {
             placeholder="••••••••"
             required
           />
-        </div>
+        </label>
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </button>

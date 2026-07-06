@@ -54,6 +54,30 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 - Campos com formato fixo (CPF, número/validade/CVV de cartão) agora restringem o que dá pra
   digitar em vez de só validar no envio: CPF aceita só dígitos e para em 11; número e validade
   do cartão formatam automaticamente (`0000-0000-0000-0000`, `MM/AA`) enquanto o usuário digita.
+- Rate limit (10 req/min) em `POST /api/cliente/comunidade/upload`, mesmo padrão já usado nas
+  rotas de movimentação financeira, para reduzir o impacto de abuso no upload de mídia.
+- CSP explícita: o backend (API só-JSON) nega tudo por padrão via Helmet; o frontend (nginx)
+  declara `script-src`/`style-src`/`img-src`/`connect-src` explicitamente em vez de depender só
+  de CORS para restringir de onde a página pode carregar recursos.
+- Paginação em `GET /api/logs`, seguindo o mesmo padrão (`page`/`limit` →
+  `{ dados, total, pagina, totalPaginas }`) já usado nos demais endpoints de listagem.
+- Índice (`@@index`) em `Transacao.createdAt` e `Post.createdAt`, usados em consultas ordenadas
+  por data e na limpeza automática da Comunidade.
+- Refresh token: o access token passa a expirar em 1h (antes eram 8h), com um refresh token de
+  7 dias emitido junto no login. Novo endpoint `POST /api/auth/refresh` emite um novo access
+  token a partir do refresh token; o frontend renova automaticamente em qualquer 401 e só desloga
+  se o refresh também falhar.
+- Testes unitários para os services que ainda não tinham cobertura (`cartaoService`,
+  `clienteCartaoService`, `clienteService`, `contaService`, `dashboardService`, `emailService`,
+  `logService`, `uploadService`) e para o middleware de autenticação.
+- Acessibilidade: campos de formulário usam associação implícita `<label>` (rótulo e input no
+  mesmo elemento) em vez de apenas texto solto ao lado do input; mídia da Comunidade (imagem e
+  vídeo) ganha `alt`/`aria-label` descritivos.
+- Error boundary no frontend: um erro de render em qualquer tela agora mostra uma página de erro
+  com opção de recarregar, em vez de deixar a interface em branco.
+- Logging estruturado básico no backend (`utils/logger.ts`): eventos e erros não tratados são
+  gravados como uma linha JSON (timestamp, nível, mensagem) em vez de `console.log`/`console.error`
+  soltos — sem integrar um serviço externo como Sentry, que exigiria conta/API key própria.
 
 ### Changed
 - Frontend: tipos TypeScript (`Cliente`, `Conta`, `Cartao`, `Emprestimo`, `Transacao`) no lugar de

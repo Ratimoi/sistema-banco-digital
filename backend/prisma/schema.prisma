@@ -93,6 +93,7 @@ model Post {
   cliente   Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   @@index([clienteId])
+  @@index([createdAt])
 }
 
 model Transacao {
@@ -110,4 +111,5 @@ model Transacao {
 
   @@index([contaOrigemId])
   @@index([contaDestinoId])
+  @@index([createdAt])
 }

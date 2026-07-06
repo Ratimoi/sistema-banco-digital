@@ -1,6 +1,7 @@
 import authApi from "./authApi"
 
 const TOKEN_KEY = "banco_token"
+const REFRESH_KEY = "banco_refresh_token"
 const NIVEL_KEY = "banco_nivel"
 
 export const cadastro = (data: {
@@ -23,6 +24,10 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY)
 export const setToken = (token: string) => localStorage.setItem(TOKEN_KEY, token)
 
 export const clearToken = () => localStorage.removeItem(TOKEN_KEY)
+
+export const setRefreshToken = (refreshToken: string) => localStorage.setItem(REFRESH_KEY, refreshToken)
+
+export const clearRefreshToken = () => localStorage.removeItem(REFRESH_KEY)
 
 export const isAuthenticated = () => Boolean(getToken())
 

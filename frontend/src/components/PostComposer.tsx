@@ -51,6 +51,7 @@ export function PostComposer({ onUpload, onCreate, onPosted, placeholder }: Post
     <div className="card" style={{ marginBottom: 20 }}>
       <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
         <textarea
+          aria-label="Nova publicação"
           value={conteudo}
           onChange={(e) => setConteudo(e.target.value)}
           placeholder={placeholder ?? "Compartilhe algo com a comunidade... (use @nome ou links)"}
@@ -70,7 +71,12 @@ export function PostComposer({ onUpload, onCreate, onPosted, placeholder }: Post
         {previewUrl && (
           <div style={{ position: "relative", maxWidth: 240 }}>
             {arquivo?.type.startsWith("video/") ? (
-              <video src={previewUrl} controls style={{ maxWidth: "100%", borderRadius: "var(--radius)" }} />
+              <video
+                src={previewUrl}
+                controls
+                aria-label="Prévia do vídeo anexado"
+                style={{ maxWidth: "100%", borderRadius: "var(--radius)" }}
+              />
             ) : (
               <img src={previewUrl} alt="Prévia" style={{ maxWidth: "100%", borderRadius: "var(--radius)" }} />
             )}

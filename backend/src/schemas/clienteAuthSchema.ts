@@ -24,7 +24,12 @@ export const redefinirSenhaClienteSchema = z.object({
   novaSenha: senhaForteSchema,
 })
 
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1, "Refresh token é obrigatório"),
+})
+
 export type CadastroClienteInput = z.infer<typeof cadastroClienteSchema>
 export type LoginClienteInput = z.infer<typeof loginClienteSchema>
 export type EsqueciSenhaClienteInput = z.infer<typeof esqueciSenhaClienteSchema>
 export type RedefinirSenhaClienteInput = z.infer<typeof redefinirSenhaClienteSchema>
+export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>

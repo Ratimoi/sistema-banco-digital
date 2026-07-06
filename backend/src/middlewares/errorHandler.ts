@@ -3,6 +3,7 @@ import { ZodError } from "zod"
 import { MulterError } from "multer"
 import { Prisma } from "../../generated/prisma"
 import { AppError } from "../utils/AppError"
+import { logger } from "../utils/logger"
 
 const PRISMA_ERROR_STATUS: Record<string, number> = {
   P2002: 409, // unique constraint violation
@@ -38,6 +39,11 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
     return res.status(status).json({ error: message })
   }
 
-  console.error(err)
+  logger.error("Erro não tratado", {
+    message: err instanceof Error ? err.message : String(err),
+    stack: err instanceof Error ? err.stack : undefined,
+    path: req.path,
+    method: req.method,
+  })
   return res.status(500).json({ error: "Erro interno do servidor" })
 }

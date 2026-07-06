@@ -180,8 +180,8 @@ export default function CartoesPage() {
           }
         >
           <div className="form-grid">
-            <div className="field col-span-2">
-              <label>Número do Cartão</label>
+            <label className="field col-span-2">
+              Número do Cartão
               <input
                 value={form.numero}
                 onChange={handleNumeroChange}
@@ -189,9 +189,9 @@ export default function CartoesPage() {
                 inputMode="numeric"
                 maxLength={19}
               />
-            </div>
-            <div className="field">
-              <label>Validade</label>
+            </label>
+            <label className="field">
+              Validade
               <input
                 value={form.validade}
                 onChange={handleValidadeChange}
@@ -199,9 +199,9 @@ export default function CartoesPage() {
                 inputMode="numeric"
                 maxLength={5}
               />
-            </div>
-            <div className="field">
-              <label>CVV</label>
+            </label>
+            <label className="field">
+              CVV
               <input
                 value={form.cvv}
                 onChange={handleCvvChange}
@@ -209,20 +209,20 @@ export default function CartoesPage() {
                 inputMode="numeric"
                 maxLength={4}
               />
-            </div>
-            <div className="field">
-              <label>Tipo</label>
+            </label>
+            <label className="field">
+              Tipo
               <select value={form.tipo} onChange={f("tipo")}>
                 <option value="credito">Crédito</option>
                 <option value="debito">Débito</option>
               </select>
-            </div>
-            <div className="field">
-              <label>Limite (R$)</label>
+            </label>
+            <label className="field">
+              Limite (R$)
               <input type="number" value={form.limite} onChange={f("limite")} placeholder="1000.00" />
-            </div>
-            <div className="field">
-              <label>Conta</label>
+            </label>
+            <label className="field">
+              Conta
               <select value={form.contaId} onChange={f("contaId")}>
                 <option value="">Selecione...</option>
                 {contas.map((c) => (
@@ -231,7 +231,7 @@ export default function CartoesPage() {
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
           </div>
         </Modal>
       )}

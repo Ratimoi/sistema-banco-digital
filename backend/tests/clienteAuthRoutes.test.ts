@@ -4,12 +4,14 @@ import { describe, expect, it, vi, beforeEach } from "vitest"
 
 const cadastroMock = vi.fn()
 const loginMock = vi.fn()
+const refreshMock = vi.fn()
 
 vi.mock("../src/services/clienteAuthService", () => ({
   cadastro: (...args: unknown[]) => cadastroMock(...args),
   login: (...args: unknown[]) => loginMock(...args),
   solicitarRecuperacaoSenha: vi.fn(),
   redefinirSenha: vi.fn(),
+  refresh: (...args: unknown[]) => refreshMock(...args),
 }))
 
 const { default: clienteAuthRoutes } = await import("../src/routes/clienteAuthRoutes")
@@ -87,5 +89,32 @@ describe("POST /api/cliente-auth/login", () => {
       .send({ email: "teste@banco.com", senha: "correta" })
     expect(res.status).toBe(200)
     expect(res.body.token).toBe("abc.def.ghi")
+  })
+})
+
+describe("POST /api/cliente-auth/refresh", () => {
+  beforeEach(() => {
+    refreshMock.mockReset()
+  })
+
+  it("retorna 400 quando o refreshToken não é enviado", async () => {
+    const res = await request(app).post("/api/cliente-auth/refresh").send({})
+    expect(res.status).toBe(400)
+    expect(refreshMock).not.toHaveBeenCalled()
+  })
+
+  it("retorna 401 quando o serviço rejeita o refresh token", async () => {
+    refreshMock.mockRejectedValue(new AppError("Refresh token inválido ou expirado", 401))
+    const res = await request(app).post("/api/cliente-auth/refresh").send({ refreshToken: "invalido" })
+    expect(res.status).toBe(401)
+  })
+
+  it("retorna 200 com um novo access token", async () => {
+    refreshMock.mockResolvedValue({ token: "novo.access.token" })
+    const res = await request(app)
+      .post("/api/cliente-auth/refresh")
+      .send({ refreshToken: "valido.refresh.token" })
+    expect(res.status).toBe(200)
+    expect(res.body.token).toBe("novo.access.token")
   })
 })

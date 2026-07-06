@@ -1,5 +1,6 @@
 import "dotenv/config"
 import { z } from "zod"
+import { logger } from "../utils/logger"
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
@@ -7,7 +8,8 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL é obrigatório"),
   DATABASE_SSL: z.string().optional(),
   JWT_SECRET: z.string().min(16, "JWT_SECRET deve ter pelo menos 16 caracteres"),
-  JWT_EXPIRES_IN: z.string().default("8h"),
+  JWT_EXPIRES_IN: z.string().default("1h"),
+  JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
   CORS_ORIGINS: z.string().optional(),
@@ -18,8 +20,7 @@ const envSchema = z.object({
 const parsed = envSchema.safeParse(process.env)
 
 if (!parsed.success) {
-  console.error("Variáveis de ambiente inválidas:")
-  console.error(z.treeifyError(parsed.error))
+  logger.error("Variáveis de ambiente inválidas", { detalhes: z.treeifyError(parsed.error) })
   process.exit(1)
 }
 

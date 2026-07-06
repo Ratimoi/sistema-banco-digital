@@ -21,3 +21,8 @@ export const redefinirSenha = asyncHandler(async (req: Request, res: Response) =
   const result = await clienteAuthService.redefinirSenha(req.body)
   return res.json(result)
 })
+
+export const refresh = asyncHandler(async (req: Request, res: Response) => {
+  const result = await clienteAuthService.refresh(req.body.refreshToken)
+  return res.json(result)
+})

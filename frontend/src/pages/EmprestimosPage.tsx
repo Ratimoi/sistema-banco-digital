@@ -230,20 +230,20 @@ export default function EmprestimosPage() {
           }
         >
           <div className="form-grid">
-            <div className="field">
-              <label>Valor (R$)</label>
+            <label className="field">
+              Valor (R$)
               <input type="number" value={form.valor} onChange={f("valor")} placeholder="0.00" />
-            </div>
-            <div className="field">
-              <label>Taxa de Juros (%)</label>
+            </label>
+            <label className="field">
+              Taxa de Juros (%)
               <input type="number" value={form.taxaJuros} onChange={f("taxaJuros")} placeholder="2.5" />
-            </div>
-            <div className="field">
-              <label>Parcelas</label>
+            </label>
+            <label className="field">
+              Parcelas
               <input type="number" value={form.parcelas} onChange={f("parcelas")} placeholder="12" />
-            </div>
-            <div className="field">
-              <label>Status</label>
+            </label>
+            <label className="field">
+              Status
               <select value={form.status} onChange={f("status")}>
                 <option value="pendente">Pendente</option>
                 <option value="ativo">Ativo</option>
@@ -251,9 +251,9 @@ export default function EmprestimosPage() {
                 <option value="quitado">Quitado</option>
                 <option value="inadimplente">Inadimplente</option>
               </select>
-            </div>
-            <div className="field col-span-2">
-              <label>Cliente</label>
+            </label>
+            <label className="field col-span-2">
+              Cliente
               <select value={form.clienteId} onChange={f("clienteId")}>
                 <option value="">Selecione...</option>
                 {clientes.map((c) => (
@@ -262,7 +262,7 @@ export default function EmprestimosPage() {
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
           </div>
         </Modal>
       )}
