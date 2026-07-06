@@ -4,8 +4,19 @@ import * as contaService from "../services/contaService"
 import { registrarLog } from "../services/logService"
 import { paginationQuerySchema } from "../schemas/common"
 
+// Nível 2 gerencia contas (número, tipo, vínculo com o cliente), mas não define nem altera o
+// saldo diretamente — isso fica restrito a nível 3. Removendo o campo (em vez de rejeitar a
+// requisição), a conta é criada/atualizada normalmente e o saldo cai no padrão do banco (0) na
+// criação, ou simplesmente não é alterado na edição.
+const semSaldoParaNivelBaixo = <T extends { saldo?: unknown }>(nivel: number | undefined, data: T): T => {
+  if ((nivel ?? 0) >= 3) return data
+  const resto = { ...data }
+  delete resto.saldo
+  return resto
+}
+
 export const criarConta = asyncHandler(async (req: Request, res: Response) => {
-  const conta = await contaService.criar(req.body)
+  const conta = await contaService.criar(semSaldoParaNivelBaixo(req.nivel, req.body))
   return res.status(201).json(conta)
 })
 
@@ -25,7 +36,7 @@ export const contasPorCliente = asyncHandler(async (req: Request, res: Response)
 })
 
 export const atualizarConta = asyncHandler(async (req: Request, res: Response) => {
-  const conta = await contaService.atualizar(Number(req.params.id), req.body)
+  const conta = await contaService.atualizar(Number(req.params.id), semSaldoParaNivelBaixo(req.nivel, req.body))
   return res.json(conta)
 })
 

@@ -23,6 +23,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
 ## [Unreleased]
 
 ### Added
+- Página inicial (`/`) redesenhada como landing page: seção de destaque, grade com as
+  funcionalidades do sistema (contas, cartões, transações, empréstimos, comunidade e painel da
+  equipe) e chamadas para criar conta/entrar.
 - Portal de autoatendimento do cliente (`/portal/*`): cadastro (cria cliente e conta juntos),
   transações identificadas por número de cartão (saque só com cartão de débito, transferência
   resolvendo a conta de destino pelo cartão), solicitação de empréstimo via cartão de crédito
@@ -114,6 +117,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e o
   `Emprestimo.clienteId`, `Cartao.contaId`, `Post.clienteId`, `Transacao.contaOrigemId`,
   `Transacao.contaDestinoId`) — o Postgres, diferente do MySQL, não cria índice automático
   em coluna de chave estrangeira.
+- **Reestrutura os níveis de acesso da equipe**: nível 1 passa a acessar exclusivamente a
+  Comunidade (antes via também clientes, contas, cartões, empréstimos, transações, dashboard e
+  logs); nível 2 mantém acesso a essas telas — inclusive aprovar/rejeitar empréstimo — mas não
+  pode mais mexer em saldo diretamente (`POST /api/transacoes/deposito|saque|transferencia` e o
+  campo `saldo` de `PUT`/`POST /api/contas` agora exigem nível 3). O frontend some com os itens de
+  menu e campos que a conta não pode usar, mas a restrição de verdade é sempre no backend.
 
 ### Fixed
 - Envio de e-mail (recuperação de senha e relatório de transações) nunca funcionava em produção:

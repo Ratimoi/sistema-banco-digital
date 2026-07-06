@@ -6,10 +6,10 @@ import emprestimoRoutes from "./emprestimoRoutes"
 import cartaoRoutes from "./cartaoRoutes"
 import logRoutes from "./logRoutes"
 import dashboardRoutes from "./dashboardRoutes"
-import comunidadeRoutes from "./comunidadeRoutes"
 
 const router = Router()
 
+// A Comunidade é montada separadamente em server.ts (nível 1+, antes deste mount de nível 2+).
 router.use("/clientes", clienteRoutes)
 router.use("/contas", contaRoutes)
 router.use("/transacoes", transacaoRoutes)
@@ -17,6 +17,5 @@ router.use("/emprestimos", emprestimoRoutes)
 router.use("/cartoes", cartaoRoutes)
 router.use("/logs", logRoutes)
 router.use("/dashboard", dashboardRoutes)
-router.use("/comunidade", comunidadeRoutes)
 
 export default router
