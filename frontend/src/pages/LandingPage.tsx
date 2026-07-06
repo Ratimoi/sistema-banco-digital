@@ -52,7 +52,7 @@ export default function LandingPage() {
         }}
       >
         <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--accent)", fontSize: 20 }}>
-          BANCO
+          TEENBANK
         </span>
         <div style={{ display: "flex", gap: 8 }}>
           <Link to="/login" className="btn btn-ghost">
@@ -162,7 +162,7 @@ export default function LandingPage() {
           fontSize: 12,
         }}
       >
-        Sistema Bancário Digital — projeto acadêmico (SENAC)
+        TeenBank — projeto acadêmico (SENAC)
       </footer>
     </div>
   )

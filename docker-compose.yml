@@ -2,7 +2,7 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: banco_digital_db
+    container_name: teenbank_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DATABASE_USER}
@@ -20,7 +20,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: banco_digital_backend
+    container_name: teenbank_backend
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/${DATABASE_NAME}
@@ -43,7 +43,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: production
-    container_name: banco_digital_frontend
+    container_name: teenbank_frontend
     restart: unless-stopped
     ports:
       - "80:80"

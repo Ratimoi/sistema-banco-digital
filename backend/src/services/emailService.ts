@@ -8,7 +8,7 @@ import { AppError } from "../utils/AppError"
 // Inicializado sob demanda: o construtor do Resend lança exceção sem API key, e não devemos
 // derrubar o app inteiro se e-mail não estiver configurado (mesma tolerância de antes).
 const getResend = () => new Resend(env.RESEND_API_KEY)
-const REMETENTE = env.EMAIL_FROM ?? "Banco API <onboarding@resend.dev>"
+const REMETENTE = env.EMAIL_FROM ?? "TeenBank <onboarding@resend.dev>"
 
 export const enviarEmailRecuperacaoSenha = async (email: string, nome: string, codigo: string) => {
   const { error } = await getResend().emails.send({
