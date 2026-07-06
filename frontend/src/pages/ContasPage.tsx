@@ -161,23 +161,23 @@ export default function ContasPage() {
           }
         >
           <div className="form-grid">
-            <div className="field">
-              <label>Número da Conta</label>
+            <label className="field">
+              Número da Conta
               <input value={form.numeroConta} onChange={f("numeroConta")} placeholder="1001" />
-            </div>
-            <div className="field">
-              <label>Tipo</label>
+            </label>
+            <label className="field">
+              Tipo
               <select value={form.tipo} onChange={f("tipo")}>
                 <option value="corrente">Corrente</option>
                 <option value="poupanca">Poupança</option>
               </select>
-            </div>
-            <div className="field">
-              <label>Saldo Inicial (R$)</label>
+            </label>
+            <label className="field">
+              Saldo Inicial (R$)
               <input type="number" value={form.saldo} onChange={f("saldo")} placeholder="0.00" />
-            </div>
-            <div className="field">
-              <label>Cliente</label>
+            </label>
+            <label className="field">
+              Cliente
               <select value={form.clienteId} onChange={f("clienteId")}>
                 <option value="">Selecione...</option>
                 {clientes.map((c) => (
@@ -186,7 +186,7 @@ export default function ContasPage() {
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
           </div>
         </Modal>
       )}

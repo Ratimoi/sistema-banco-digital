@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 
 const clienteFindUniqueMock = vi.fn()
 const clienteUpdateMock = vi.fn()
@@ -30,7 +31,7 @@ vi.mock("../src/services/emailService", () => ({
   enviarEmailRecuperacaoSenha: (...args: unknown[]) => enviarEmailRecuperacaoSenhaMock(...args),
 }))
 
-const { cadastro, login, solicitarRecuperacaoSenha, redefinirSenha } = await import(
+const { cadastro, login, solicitarRecuperacaoSenha, redefinirSenha, refresh } = await import(
   "../src/services/clienteAuthService"
 )
 const { AppError } = await import("../src/utils/AppError")
@@ -143,15 +144,53 @@ describe("clienteAuthService.login", () => {
     )
   })
 
-  it("retorna token com nivel e mensagem de primeiro acesso, registrando LOGIN_SUCESSO", async () => {
+  it("retorna access token e refresh token com nivel e mensagem de primeiro acesso, registrando LOGIN_SUCESSO", async () => {
     clienteFindUniqueMock.mockResolvedValue(await clienteBase({ ultimoLogin: null }))
     const result = await login({ email: "cliente@banco.com", senha: "SenhaForte123!" })
     expect(result.token).toEqual(expect.any(String))
+    expect(result.refreshToken).toEqual(expect.any(String))
     expect(result.mensagem).toMatch(/primeiro acesso/i)
     expect(result.cliente).toEqual({ id: 1, nome: "Cliente Teste", email: "cliente@banco.com", nivel: 0 })
     expect(logCreateMock).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ acao: "LOGIN_SUCESSO" }) }),
     )
+
+    const accessPayload = jwt.decode(result.token) as jwt.JwtPayload & { tipo?: string }
+    const refreshPayload = jwt.decode(result.refreshToken) as jwt.JwtPayload & { tipo?: string }
+    expect(accessPayload.tipo).toBe("acesso")
+    expect(refreshPayload.tipo).toBe("refresh")
+  })
+})
+
+describe("clienteAuthService.refresh", () => {
+  beforeEach(() => {
+    clienteFindUniqueMock.mockReset()
+  })
+
+  it("emite um novo access token a partir de um refresh token válido", async () => {
+    clienteFindUniqueMock.mockResolvedValue(await clienteBase())
+    const refreshToken = jwt.sign({ sub: 1, nivel: 0, tipo: "refresh" }, process.env.JWT_SECRET as string)
+
+    const result = await refresh(refreshToken)
+
+    expect(result.token).toEqual(expect.any(String))
+    const payload = jwt.decode(result.token) as jwt.JwtPayload & { tipo?: string }
+    expect(payload.tipo).toBe("acesso")
+  })
+
+  it("rejeita um access token usado como refresh token", async () => {
+    const accessToken = jwt.sign({ sub: 1, nivel: 0, tipo: "acesso" }, process.env.JWT_SECRET as string)
+    await expect(refresh(accessToken)).rejects.toMatchObject({ statusCode: 401 })
+  })
+
+  it("rejeita um token com assinatura inválida", async () => {
+    await expect(refresh("token.invalido.aqui")).rejects.toMatchObject({ statusCode: 401 })
+  })
+
+  it("rejeita quando o cliente do refresh token não existe mais", async () => {
+    clienteFindUniqueMock.mockResolvedValue(null)
+    const refreshToken = jwt.sign({ sub: 999, nivel: 0, tipo: "refresh" }, process.env.JWT_SECRET as string)
+    await expect(refresh(refreshToken)).rejects.toMatchObject({ statusCode: 401 })
   })
 })
 

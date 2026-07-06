@@ -178,8 +178,8 @@ export default function PortalTransacoesPage() {
             </div>
             <div style={{ padding: 20 }}>
               <div className="form-grid">
-                <div className="field col-span-2">
-                  <label>Cartão de débito</label>
+                <label className="field col-span-2">
+                  Cartão de débito
                   <select
                     value={fSaque.cartaoNumero}
                     onChange={(e) => setFSaque((p) => ({ ...p, cartaoNumero: e.target.value }))}
@@ -191,16 +191,16 @@ export default function PortalTransacoesPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="field col-span-2">
-                  <label>Valor (R$)</label>
+                </label>
+                <label className="field col-span-2">
+                  Valor (R$)
                   <input
                     type="number"
                     value={fSaque.valor}
                     onChange={(e) => setFSaque((p) => ({ ...p, valor: e.target.value }))}
                     placeholder="0.00"
                   />
-                </div>
+                </label>
               </div>
               <button
                 className="btn btn-primary"
@@ -221,8 +221,8 @@ export default function PortalTransacoesPage() {
             </div>
             <div style={{ padding: 20 }}>
               <div className="form-grid">
-                <div className="field col-span-2">
-                  <label>Número do cartão de destino</label>
+                <label className="field col-span-2">
+                  Número do cartão de destino
                   <input
                     value={fTransferencia.cartaoNumeroDestino}
                     onChange={(e) =>
@@ -230,16 +230,16 @@ export default function PortalTransacoesPage() {
                     }
                     placeholder="0000-0000-0000-0000"
                   />
-                </div>
-                <div className="field col-span-2">
-                  <label>Valor (R$)</label>
+                </label>
+                <label className="field col-span-2">
+                  Valor (R$)
                   <input
                     type="number"
                     value={fTransferencia.valor}
                     onChange={(e) => setFTransferencia((p) => ({ ...p, valor: e.target.value }))}
                     placeholder="0.00"
                   />
-                </div>
+                </label>
               </div>
               <button
                 className="btn btn-primary"
@@ -261,8 +261,8 @@ export default function PortalTransacoesPage() {
               </div>
               <div style={{ padding: 20 }}>
                 <div className="form-grid">
-                  <div className="field col-span-2">
-                    <label>Cartão de crédito</label>
+                  <label className="field col-span-2">
+                    Cartão de crédito
                     <select
                       value={fEmprestimo.cartaoNumero}
                       onChange={(e) => setFEmprestimo((p) => ({ ...p, cartaoNumero: e.target.value }))}
@@ -274,25 +274,25 @@ export default function PortalTransacoesPage() {
                         </option>
                       ))}
                     </select>
-                  </div>
-                  <div className="field">
-                    <label>Valor (R$)</label>
+                  </label>
+                  <label className="field">
+                    Valor (R$)
                     <input
                       type="number"
                       value={fEmprestimo.valor}
                       onChange={(e) => setFEmprestimo((p) => ({ ...p, valor: e.target.value }))}
                       placeholder="0.00"
                     />
-                  </div>
-                  <div className="field">
-                    <label>Parcelas</label>
+                  </label>
+                  <label className="field">
+                    Parcelas
                     <input
                       type="number"
                       value={fEmprestimo.parcelas}
                       onChange={(e) => setFEmprestimo((p) => ({ ...p, parcelas: e.target.value }))}
                       placeholder="12"
                     />
-                  </div>
+                  </label>
                 </div>
                 <button
                   className="btn btn-primary"

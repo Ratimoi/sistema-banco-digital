@@ -34,16 +34,16 @@ export default function PortalRedefinirSenhaPage() {
           <h1>BANCO</h1>
           <span>Redefinir senha</span>
         </div>
-        <div className="field">
-          <label>E-mail</label>
+        <label className="field">
+          E-mail
           <input type="email" value={form.email} onChange={f("email")} autoFocus required />
-        </div>
-        <div className="field">
-          <label>Código recebido por e-mail</label>
+        </label>
+        <label className="field">
+          Código recebido por e-mail
           <input value={form.codigo} onChange={f("codigo")} placeholder="123456" required />
-        </div>
-        <div className="field">
-          <label>Nova senha</label>
+        </label>
+        <label className="field">
+          Nova senha
           <input
             type="password"
             value={form.novaSenha}
@@ -51,7 +51,7 @@ export default function PortalRedefinirSenhaPage() {
             placeholder="Mínimo 8 caracteres, com maiúscula, número e símbolo"
             required
           />
-        </div>
+        </label>
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Redefinindo..." : "Redefinir senha"}
         </button>

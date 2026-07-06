@@ -192,12 +192,12 @@ export default function ClientesPage() {
           }
         >
           <div className="form-grid">
-            <div className="field col-span-2">
-              <label>Nome</label>
+            <label className="field col-span-2">
+              Nome
               <input value={form.nome} onChange={f("nome")} placeholder="Nome completo" />
-            </div>
-            <div className="field">
-              <label>CPF</label>
+            </label>
+            <label className="field">
+              CPF
               <input
                 value={form.cpf}
                 onChange={handleCpfChange}
@@ -205,29 +205,29 @@ export default function ClientesPage() {
                 inputMode="numeric"
                 maxLength={11}
               />
-            </div>
-            <div className="field">
-              <label>Senha</label>
+            </label>
+            <label className="field">
+              Senha
               <input
                 type="password"
                 value={form.senha}
                 onChange={f("senha")}
                 placeholder="Mínimo 8 caracteres, com maiúscula, número e símbolo"
               />
-            </div>
-            <div className="field col-span-2">
-              <label>E-mail</label>
+            </label>
+            <label className="field col-span-2">
+              E-mail
               <input type="email" value={form.email} onChange={f("email")} placeholder="email@exemplo.com" />
-            </div>
-            <div className="field col-span-2">
-              <label>Nível (credencial especial)</label>
+            </label>
+            <label className="field col-span-2">
+              Nível (credencial especial)
               <select value={form.nivel} onChange={f("nivel")}>
                 <option value="0">Cliente comum</option>
                 <option value="1">Equipe · nível 1</option>
                 <option value="2">Equipe · nível 2</option>
                 <option value="3">Equipe · nível 3</option>
               </select>
-            </div>
+            </label>
           </div>
         </Modal>
       )}

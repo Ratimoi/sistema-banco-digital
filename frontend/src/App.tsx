@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { BrowserRouter, Routes, Route, Navigate, NavLink, useNavigate } from "react-router-dom"
 import { ToastContainer } from "./components/ui"
-import { isAuthenticated, getNivel, clearToken, clearNivel } from "./services/authService"
+import { isAuthenticated, getNivel, clearToken, clearRefreshToken, clearNivel } from "./services/authService"
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import DashboardPage from "./pages/DashboardPage"
@@ -102,6 +102,7 @@ function PortalLayout() {
 
   const handleLogout = () => {
     clearToken()
+    clearRefreshToken()
     clearNivel()
     navigate("/login", { replace: true })
   }
@@ -144,6 +145,7 @@ function AdminLayout() {
 
   const handleLogout = () => {
     clearToken()
+    clearRefreshToken()
     clearNivel()
     navigate("/login", { replace: true })
   }

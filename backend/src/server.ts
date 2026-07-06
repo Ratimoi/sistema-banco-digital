@@ -9,6 +9,7 @@ import clientePortalRoutes from "./routes/clientePortalRoutes"
 import { auth } from "./middlewares/auth"
 import { requireNivel } from "./middlewares/nivel"
 import { errorHandler } from "./middlewares/errorHandler"
+import { logger } from "./utils/logger"
 
 const app = express()
 
@@ -29,7 +30,15 @@ const allowedOrigins = env.CORS_ORIGINS
   ? env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
   : defaultOrigins
 
-app.use(helmet())
+// A API só devolve JSON, nunca HTML/scripts — CSP explícita nega tudo por padrão em vez de
+// herdar os defaults do Helmet (pensados para servidores que também servem páginas).
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] },
+    },
+  }),
+)
 app.use(
   cors({
     origin: allowedOrigins,
@@ -48,6 +57,5 @@ app.use("/api", auth, requireNivel(1), routes)
 app.use(errorHandler)
 
 app.listen(env.PORT, "0.0.0.0", () => {
-  console.log(`API rodando em http://0.0.0.0:${env.PORT}`)
-  console.log(`Acessível em http://localhost:${env.PORT}`)
+  logger.info("API iniciada", { port: env.PORT, ambiente: env.NODE_ENV })
 })
