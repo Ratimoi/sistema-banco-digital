@@ -211,6 +211,15 @@ Cliente (1) ──────── (N) Conta
 * contaDestinoId
 * createdAt
 
+### Post (Comunidade)
+
+* id
+* conteudo
+* midiaUrl (opcional — url pública do Supabase Storage)
+* midiaTipo (opcional — `"imagem"` ou `"video"`)
+* clienteId
+* createdAt (usado para apagar publicações com mais de 30 dias automaticamente)
+
 ---
 
 # 🚀 Configuração do Ambiente
@@ -363,7 +372,8 @@ Criar arquivo `.env` (veja `backend/.env.example`):
 DATABASE_URL="postgresql://postgres:senha@localhost:5432/api_banco"
 
 JWT_SECRET=troque_por_um_segredo_aleatorio_longo
-JWT_EXPIRES_IN=8h
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
 
 RESEND_API_KEY=re_sua_chave
 ```
@@ -448,6 +458,7 @@ transações mais recentes, sem precisar carregar as tabelas inteiras no cliente
 | Método | Endpoint                  |
 | ------ | ------------------------- |
 | POST   | /api/auth/login           |
+| POST   | /api/auth/refresh         |
 | POST   | /api/auth/esqueci-senha   |
 | POST   | /api/auth/redefinir-senha |
 
@@ -462,8 +473,20 @@ Content-Type: application/json
 ```
 
 Resposta inclui uma mensagem de boas-vindas com a data do último acesso (ou aviso de primeiro
-acesso), além do token e do `nivel` da conta. Após 3 tentativas de senha inválida, a conta fica
-bloqueada por 15 minutos (`423 Locked`).
+acesso), além do `token` (access token, expira em 1h), do `refreshToken` (expira em 7 dias) e do
+`nivel` da conta. Após 3 tentativas de senha inválida, a conta fica bloqueada por 15 minutos
+(`423 Locked`).
+
+```http
+POST /api/auth/refresh
+Content-Type: application/json
+
+{ "refreshToken": "eyJhbGciOiJIUzI1NiIs..." }
+```
+
+Emite um novo `token` (access token) a partir de um `refreshToken` válido, sem exigir login de
+novo. O frontend chama esse endpoint automaticamente sempre que uma requisição autenticada recebe
+`401`, e só desloga o usuário se a renovação também falhar.
 
 ```http
 POST /api/auth/esqueci-senha
@@ -574,6 +597,36 @@ cadastro do portal (`/cadastro`), sem exigir autenticação.
 
 ---
 
+## Comunidade
+
+Mural de publicações entre clientes. Montado tanto em `/api/comunidade` (nível 1+, painel
+administrativo) quanto em `/api/cliente/comunidade` (qualquer conta autenticada, portal do
+cliente) — os mesmos posts aparecem nos dois lugares.
+
+| Método | Endpoint            | Nível exigido        |
+| ------ | ------------------- | --------------------- |
+| GET    | /comunidade          | 0 (qualquer conta)     |
+| POST   | /comunidade          | 0 (qualquer conta)     |
+| POST   | /comunidade/upload   | 0 (qualquer conta)     |
+| DELETE | /comunidade/:id      | 1+ (moderação)         |
+
+```http
+POST /api/cliente/comunidade/upload
+Content-Type: multipart/form-data
+
+arquivo: <imagem ou vídeo, até 25MB>
+```
+
+Envia o arquivo para o Supabase Storage e retorna `{ url, tipo }` (`tipo` é `"imagem"` ou
+`"video"`), usado no campo `midiaUrl`/`midiaTipo` do `POST /comunidade` seguinte. Limitado a
+10 requisições/minuto por IP. Links (`https://...`) viram texto clicável e `@nome` fica
+destacado visualmente no conteúdo do post — sem gerar notificação nem vínculo no banco.
+
+Publicações com mais de 30 dias (e a mídia associada, se houver) são apagadas automaticamente a
+cada listagem do mural, sem precisar de um cron.
+
+---
+
 ## Portal do Cliente (autoatendimento)
 
 Rotas em `/api/cliente/*` exigem apenas um token válido (qualquer `nivel`) — usadas pelo
@@ -591,6 +644,7 @@ painel de autoatendimento do próprio cliente em `/portal/*`.
 | POST   | /api/cliente/emprestimos          |
 | GET    | /api/cliente/comunidade           |
 | POST   | /api/cliente/comunidade           |
+| POST   | /api/cliente/comunidade/upload    |
 
 Saque e transferência identificam a conta pelo número do cartão informado (saque só aceita cartão
 de débito, com validação de saldo). Empréstimo solicitado via cartão de crédito é validado contra o
