@@ -257,8 +257,7 @@ docker compose down
 
 # 🌐 Ambiente de Produção
 
-Frontend e backend estão hospedados em dois serviços separados no Render. Os endereços antigos
-(`sistema-banco-digital*.onrender.com`) continuam no ar durante a transição para o domínio novo.
+Frontend e backend estão hospedados em dois serviços separados no Render:
 
 **Frontend (aplicação web)**
 
