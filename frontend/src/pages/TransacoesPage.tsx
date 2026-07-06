@@ -180,8 +180,8 @@ export default function TransacoesPage() {
             </div>
             <div style={{ padding: 20 }}>
               <div className="form-grid">
-                <div className="field col-span-2">
-                  <label>Conta Destino</label>
+                <label className="field col-span-2">
+                  Conta Destino
                   <select
                     value={fDeposito.contaId}
                     onChange={(e) => setFDeposito((p) => ({ ...p, contaId: e.target.value }))}
@@ -193,16 +193,16 @@ export default function TransacoesPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="field col-span-2">
-                  <label>Valor (R$)</label>
+                </label>
+                <label className="field col-span-2">
+                  Valor (R$)
                   <input
                     type="number"
                     value={fDeposito.valor}
                     onChange={(e) => setFDeposito((p) => ({ ...p, valor: e.target.value }))}
                     placeholder="0.00"
                   />
-                </div>
+                </label>
               </div>
               <button
                 className="btn btn-primary"
@@ -223,8 +223,8 @@ export default function TransacoesPage() {
             </div>
             <div style={{ padding: 20 }}>
               <div className="form-grid">
-                <div className="field col-span-2">
-                  <label>Conta Origem</label>
+                <label className="field col-span-2">
+                  Conta Origem
                   <select
                     value={fSaque.contaId}
                     onChange={(e) => setFSaque((p) => ({ ...p, contaId: e.target.value }))}
@@ -236,16 +236,16 @@ export default function TransacoesPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="field col-span-2">
-                  <label>Valor (R$)</label>
+                </label>
+                <label className="field col-span-2">
+                  Valor (R$)
                   <input
                     type="number"
                     value={fSaque.valor}
                     onChange={(e) => setFSaque((p) => ({ ...p, valor: e.target.value }))}
                     placeholder="0.00"
                   />
-                </div>
+                </label>
               </div>
               <button
                 className="btn btn-primary"
@@ -266,8 +266,8 @@ export default function TransacoesPage() {
             </div>
             <div style={{ padding: 20 }}>
               <div className="form-grid">
-                <div className="field col-span-2">
-                  <label>Conta Origem</label>
+                <label className="field col-span-2">
+                  Conta Origem
                   <select
                     value={fTransferencia.origemId}
                     onChange={(e) => setFTransferencia((p) => ({ ...p, origemId: e.target.value }))}
@@ -279,9 +279,9 @@ export default function TransacoesPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-                <div className="field col-span-2">
-                  <label>Conta Destino</label>
+                </label>
+                <label className="field col-span-2">
+                  Conta Destino
                   <select
                     value={fTransferencia.destinoId}
                     onChange={(e) => setFTransferencia((p) => ({ ...p, destinoId: e.target.value }))}
@@ -295,16 +295,16 @@ export default function TransacoesPage() {
                         </option>
                       ))}
                   </select>
-                </div>
-                <div className="field col-span-2">
-                  <label>Valor (R$)</label>
+                </label>
+                <label className="field col-span-2">
+                  Valor (R$)
                   <input
                     type="number"
                     value={fTransferencia.valor}
                     onChange={(e) => setFTransferencia((p) => ({ ...p, valor: e.target.value }))}
                     placeholder="0.00"
                   />
-                </div>
+                </label>
               </div>
               <button
                 className="btn btn-primary"

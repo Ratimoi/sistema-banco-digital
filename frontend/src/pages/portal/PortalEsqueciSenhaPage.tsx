@@ -29,8 +29,8 @@ export default function PortalEsqueciSenhaPage() {
           <h1>BANCO</h1>
           <span>Recuperar senha</span>
         </div>
-        <div className="field">
-          <label>E-mail</label>
+        <label className="field">
+          E-mail
           <input
             type="email"
             value={email}
@@ -39,7 +39,7 @@ export default function PortalEsqueciSenhaPage() {
             autoFocus
             required
           />
-        </div>
+        </label>
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Enviando..." : "Enviar código"}
         </button>

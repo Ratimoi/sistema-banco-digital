@@ -14,6 +14,18 @@ import {
   RedefinirSenhaClienteInput,
 } from "../schemas/clienteAuthSchema"
 
+type ClienteToken = { id: number; nivel: number }
+
+const gerarAccessToken = ({ id, nivel }: ClienteToken) =>
+  jwt.sign({ sub: id, nivel, tipo: "acesso" }, env.JWT_SECRET, {
+    expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"],
+  })
+
+const gerarRefreshToken = ({ id, nivel }: ClienteToken) =>
+  jwt.sign({ sub: id, nivel, tipo: "refresh" }, env.JWT_SECRET, {
+    expiresIn: env.JWT_REFRESH_EXPIRES_IN as SignOptions["expiresIn"],
+  })
+
 const MAX_TENTATIVAS = 3
 const BLOQUEIO_MINUTOS = 15
 const RECUPERACAO_MINUTOS = 15
@@ -98,9 +110,8 @@ export const login = async ({ email, senha }: LoginClienteInput) => {
 
   await registrarLog(cliente.id, "LOGIN_SUCESSO", `Login de ${email}`)
 
-  const token = jwt.sign({ sub: cliente.id, nivel: cliente.nivel }, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN as SignOptions["expiresIn"],
-  })
+  const token = gerarAccessToken(cliente)
+  const refreshToken = gerarRefreshToken(cliente)
 
   const mensagem = ultimoLoginAnterior
     ? `Bem-vindo, ${cliente.nome}. Seu último acesso ao sistema foi em ${ultimoLoginAnterior.toLocaleString("pt-BR")}.`
@@ -108,9 +119,28 @@ export const login = async ({ email, senha }: LoginClienteInput) => {
 
   return {
     token,
+    refreshToken,
     mensagem,
     cliente: { id: cliente.id, nome: cliente.nome, email: cliente.email, nivel: cliente.nivel },
   }
+}
+
+export const refresh = async (refreshToken: string) => {
+  let payload: jwt.JwtPayload & { tipo?: string }
+  try {
+    payload = jwt.verify(refreshToken, env.JWT_SECRET) as jwt.JwtPayload & { tipo?: string }
+  } catch {
+    throw new AppError("Refresh token inválido ou expirado", 401)
+  }
+
+  if (payload.tipo !== "refresh") {
+    throw new AppError("Refresh token inválido ou expirado", 401)
+  }
+
+  const cliente = await prisma.cliente.findUnique({ where: { id: Number(payload.sub) } })
+  if (!cliente) throw new AppError("Refresh token inválido ou expirado", 401)
+
+  return { token: gerarAccessToken(cliente) }
 }
 
 const gerarCodigo = () => Math.floor(100000 + Math.random() * 900000).toString()

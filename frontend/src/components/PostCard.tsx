@@ -29,7 +29,12 @@ export function PostCard({ post, onDelete }: PostCardProps) {
         {post.midiaUrl && (
           <div style={{ marginTop: 12 }}>
             {post.midiaTipo === "video" ? (
-              <video src={post.midiaUrl} controls style={{ maxWidth: "100%", borderRadius: "var(--radius)" }} />
+              <video
+                src={post.midiaUrl}
+                controls
+                aria-label="Vídeo da publicação"
+                style={{ maxWidth: "100%", borderRadius: "var(--radius)" }}
+              />
             ) : (
               <img
                 src={post.midiaUrl}

@@ -140,17 +140,17 @@ export default function PortalContaCartoesPage() {
           }
         >
           <div className="form-grid">
-            <div className="field">
-              <label>Tipo</label>
+            <label className="field">
+              Tipo
               <select value={form.tipo} onChange={f("tipo")}>
                 <option value="debito">Débito</option>
                 <option value="credito">Crédito</option>
               </select>
-            </div>
-            <div className="field">
-              <label>Limite (R$)</label>
+            </label>
+            <label className="field">
+              Limite (R$)
               <input type="number" value={form.limite} onChange={f("limite")} placeholder="1000.00" />
-            </div>
+            </label>
             <p className="col-span-2" style={{ color: "var(--text2)", fontSize: 12, margin: 0 }}>
               Para solicitar um empréstimo mais tarde, você precisa de um cartão de{" "}
               <strong>crédito</strong> — saques e transferências usam o cartão de débito.

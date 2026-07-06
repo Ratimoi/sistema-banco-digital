@@ -42,12 +42,12 @@ export default function PortalCadastroPage() {
           <h1>BANCO</h1>
           <span>Criar conta</span>
         </div>
-        <div className="field">
-          <label>Nome completo</label>
+        <label className="field">
+          Nome completo
           <input value={form.nome} onChange={f("nome")} placeholder="Seu nome" autoFocus required />
-        </div>
-        <div className="field">
-          <label>CPF</label>
+        </label>
+        <label className="field">
+          CPF
           <input
             value={form.cpf}
             onChange={handleCpfChange}
@@ -56,9 +56,9 @@ export default function PortalCadastroPage() {
             maxLength={11}
             required
           />
-        </div>
-        <div className="field">
-          <label>E-mail</label>
+        </label>
+        <label className="field">
+          E-mail
           <input
             type="email"
             value={form.email}
@@ -66,9 +66,9 @@ export default function PortalCadastroPage() {
             placeholder="voce@email.com"
             required
           />
-        </div>
-        <div className="field">
-          <label>Senha</label>
+        </label>
+        <label className="field">
+          Senha
           <input
             type="password"
             value={form.senha}
@@ -76,14 +76,14 @@ export default function PortalCadastroPage() {
             placeholder="Mínimo 8 caracteres, com maiúscula, número e símbolo"
             required
           />
-        </div>
-        <div className="field">
-          <label>Tipo de conta</label>
+        </label>
+        <label className="field">
+          Tipo de conta
           <select value={form.tipoConta} onChange={f("tipoConta")}>
             <option value="corrente">Corrente</option>
             <option value="poupanca">Poupança</option>
           </select>
-        </div>
+        </label>
         <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
           {loading ? "Criando..." : "Criar conta"}
         </button>
